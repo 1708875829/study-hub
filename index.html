@@ -236,6 +236,38 @@
   .streak-cal-dot{width:8px;height:8px;border-radius:50%;background:#ff6b6b;position:absolute;bottom:4px;}
   .streak-cal-head{font-weight:700;font-size:11px;color:var(--text-light);padding:4px 0;}
 
+  /* 宠物 */
+  .pet-card{cursor:pointer;position:relative;overflow:visible;}
+  .pet-card:hover{transform:translateY(-3px);}
+  .pet-dialogue{position:absolute;top:-45px;left:50%;transform:translateX(-50%);background:white;padding:6px 12px;border-radius:20px;font-size:11px;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,0.1);animation:popIn 0.4s ease;z-index:5;max-width:180px;text-align:center;line-height:1.4;}
+  .pet-dialogue::after{content:'';position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:6px solid white;}
+  @keyframes popIn{0%{opacity:0;transform:translateX(-50%) translateY(10px);}100%{opacity:1;transform:translateX(-50%) translateY(0);}}
+  @keyframes petBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+  .pet-emoji{font-size:36px;display:inline-block;}
+  .pet-baby .pet-emoji{font-size:24px;}
+  .pet-young .pet-emoji{font-size:36px;}
+  .pet-adult .pet-emoji{font-size:48px;}
+  .pet-stage-badge{font-size:9px;padding:1px 6px;border-radius:50px;font-weight:600;margin-top:2px;}
+  .pet-stage-badge.baby{background:#ffe0e8;color:#c0395b;}
+  .pet-stage-badge.young{background:#fff3cd;color:#b8860b;}
+  .pet-stage-badge.adult{background:#d4edda;color:#155724;}
+
+  /* 宠物选择界面 */
+  .pet-select-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:900;transition:opacity 0.5s,visibility 0.5s;}
+  .pet-select-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+  .pet-select-card{background:white;border-radius:24px;padding:30px;max-width:700px;width:90%;box-shadow:var(--shadow-lg);max-height:80vh;overflow-y:auto;text-align:center;}
+  .pet-select-title{font-size:22px;font-weight:700;margin-bottom:6px;background:linear-gradient(135deg,#ff8fa3,#b197fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .pet-select-subtitle{font-size:13px;color:var(--text-light);margin-bottom:16px;}
+  .pet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:10px;margin-bottom:20px;}
+  .pet-option{background:#fafafa;border-radius:16px;padding:12px 8px;cursor:pointer;border:2px solid transparent;transition:all 0.3s;text-align:center;}
+  .pet-option:hover{border-color:var(--pink);transform:translateY(-2px);box-shadow:0 4px 12px rgba(255,179,198,0.2);}
+  .pet-option.selected{border-color:var(--purple-dark);background:#f8f0ff;}
+  .pet-option .pet-opt-emoji{font-size:36px;display:block;}
+  .pet-option .pet-opt-name{font-size:12px;font-weight:600;margin-top:4px;color:var(--text);}
+  .pet-option .pet-opt-trait{font-size:10px;color:var(--text-light);}
+  .pet-name-input{width:200px;padding:10px 16px;border:2px solid #eee;border-radius:50px;font-size:14px;text-align:center;outline:none;margin:0 auto 16px;display:block;transition:border-color 0.3s;}
+  .pet-name-input:focus{border-color:var(--pink);}
+
   @media(max-width:600px){.app{padding:8px;}.header{padding:12px 16px;}.greeting-text{font-size:17px;}.plan-grid,.module-grid{grid-template-columns:1fr;}.stats-row{grid-template-columns:repeat(3,1fr);}.dash-grid{grid-template-columns:1fr;}.gate-card{padding:30px 25px;}}
   ::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--pink-light);border-radius:3px;}::-webkit-scrollbar-thumb:hover{background:var(--pink);}
 </style>
@@ -262,6 +294,17 @@
     <input type="password" class="gate-input" id="gateInput" placeholder="输入密码..." maxlength="20">
     <button class="gate-btn" id="gateBtn" onclick="handleGate()">🌸 进入</button>
     <div class="gate-error" id="gateError"></div><div class="gate-hint" id="gateHint"></div>
+  </div>
+</div>
+
+<!-- 宠物选择 -->
+<div class="pet-select-overlay hidden" id="petSelect">
+  <div class="pet-select-card">
+    <div class="pet-select-title">🐾 选择你的学习伙伴</div>
+    <div class="pet-select-subtitle">选一只宠物陪你一起学习吧！它会陪你成长、给你加油 ✨</div>
+    <div class="pet-grid" id="petGrid"></div>
+    <div class="form-group"><label class="form-label" style="text-align:center;">给 Ta 取个名字</label><input class="pet-name-input" id="petName" placeholder="起个可爱的名字～" maxlength="10"></div>
+    <button class="btn btn-primary" onclick="confirmPet()" id="confirmPetBtn" disabled>🐾 选好了！</button>
   </div>
 </div>
 
@@ -294,6 +337,12 @@
       <div class="stat-card mint"><div class="stat-icon">📝</div><div class="stat-value" id="statSummaries">0</div><div class="stat-label">总结</div></div>
       <div class="stat-card green"><div class="stat-icon">📸</div><div class="stat-value" id="statCheckins">0</div><div class="stat-label">今日打卡</div></div>
       <div class="stat-card yellow" style="cursor:pointer;" onclick="openStreakCalendar()"><div class="stat-icon">🔥</div><div class="stat-value" id="statStreak">0</div><div class="stat-label">连续天</div></div>
+      <div class="stat-card pet-card" id="petCard" style="cursor:pointer;" onclick="petTalk()" title="点击和宠物互动">
+        <div id="petDialogueBubble"></div>
+        <div class="pet-emoji" id="petEmoji">🐣</div>
+        <div class="stat-label" id="petCardLabel">学习伙伴</div>
+        <div class="pet-stage-badge baby" id="petStageBadge">幼崽</div>
+      </div>
     </div>
 
     <div class="deadline-banner" id="deadlineBanner"><span>⏰</span><span>距离今晚总结截止（23:00）：</span><span class="countdown" id="countdown">--:--:--</span></div>
@@ -458,7 +507,7 @@ const THEMES=[{bg:'linear-gradient(135deg,#fff0f3,#fce4ec)',text:'#c0395b',accen
 // ==================== 数据 ====================
 const STORAGE_KEY='studyHub_v4';
 function loadData(){const raw=localStorage.getItem(STORAGE_KEY);if(raw){try{return JSON.parse(raw);}catch(e){}}return getDefaultData();}
-function getDefaultData(){return{password:'',courses:[],schedules:[],summaries:{},streak:0,lastActiveDate:'',activeDates:[],overdueCourses:{},fixedCoursesInited:false,targetSchools:[],examSubjects:[],examPapers:[],examRecords:[],checkins:{}};}
+function getDefaultData(){return{password:'',courses:[],schedules:[],summaries:{},streak:0,lastActiveDate:'',activeDates:[],overdueCourses:{},fixedCoursesInited:false,targetSchools:[],examSubjects:[],examPapers:[],examRecords:[],checkins:{},pet:null};}
 function saveData(d){localStorage.setItem(STORAGE_KEY,JSON.stringify(d));}
 let data=loadData();
 data.courses.forEach(c=>{if(!c.modules)c.modules=[];});
@@ -495,12 +544,256 @@ function openGate(){document.getElementById('gate').classList.add('hidden');docu
 function changePassword(){const old=prompt('🔑 旧密码：');if(old!==data.password){showToast('旧密码不正确～','error');return;}const nw=prompt('✨ 新密码：');if(!nw||nw.length<2){showToast('密码至少2位～','warning');return;}if(nw!==prompt('🔁 确认新密码：')){showToast('两次不一致～','error');return;}data.password=nw;saveData(data);showToast('🎉 密码修改成功！','success');}
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&!document.getElementById('gate').classList.contains('hidden'))handleGate();});
 
+// ==================== 宠物系统 ====================
+const PET_TYPES=[
+  {id:'cat',emoji:'🐱',name:'小猫咪',trait:'傲娇高冷', stage3:'🐈'},
+  {id:'dog',emoji:'🐶',name:'小狗狗',trait:'忠诚热情', stage3:'🐕'},
+  {id:'parrot',emoji:'🦜',name:'小鹦鹉',trait:'话痨复读机', stage3:'🦜'},
+  {id:'turtle',emoji:'🐢',name:'小乌龟',trait:'慢悠悠智者', stage3:'🐢'},
+  {id:'snake',emoji:'🐍',name:'小蛇蛇',trait:'冷静神秘', stage3:'🐍'},
+  {id:'hamster',emoji:'🐹',name:'小仓鼠',trait:'勤劳囤积', stage3:'🐹'},
+  {id:'rabbit',emoji:'🐰',name:'小兔子',trait:'活泼跳脱', stage3:'🐰'},
+  {id:'fox',emoji:'🦊',name:'小狐狸',trait:'聪明狡黠', stage3:'🦊'},
+  {id:'owl',emoji:'🦉',name:'猫头鹰',trait:'深夜学霸', stage3:'🦉'},
+  {id:'penguin',emoji:'🐧',name:'小企鹅',trait:'笨拙努力', stage3:'🐧'},
+  {id:'panda',emoji:'🐼',name:'小熊猫',trait:'慵懒可爱', stage3:'🐼'},
+  {id:'lion',emoji:'🦁',name:'小狮子',trait:'霸气守护', stage3:'🦁'},
+  {id:'frog',emoji:'🐸',name:'小青蛙',trait:'冷静呱噪', stage3:'🐸'},
+  {id:'dragon',emoji:'🐲',name:'小龙',trait:'傲气守护', stage3:'🐉'},
+  {id:'unicorn',emoji:'🦄',name:'独角兽',trait:'梦幻温柔', stage3:'🦄'},
+  {id:'squirrel',emoji:'🐿️',name:'小松鼠',trait:'勤奋收藏', stage3:'🐿️'},
+  {id:'raccoon',emoji:'🦝',name:'小浣熊',trait:'好奇探索', stage3:'🦝'},
+  {id:'koala',emoji:'🐨',name:'小考拉',trait:'爱睡认真', stage3:'🐨'},
+  {id:'flamingo',emoji:'🦩',name:'火烈鸟',trait:'优雅自信', stage3:'🦩'},
+  {id:'whale',emoji:'🐳',name:'小鲸鱼',trait:'温柔深沉', stage3:'🐋'},
+  {id:'butterfly',emoji:'🦋',name:'小蝴蝶',trait:'轻盈乐观', stage3:'🦋'},
+  {id:'bee',emoji:'🐝',name:'小蜜蜂',trait:'勤劳团队', stage3:'🐝'},
+  {id:'hedgehog',emoji:'🦔',name:'小刺猬',trait:'外刚内柔', stage3:'🦔'},
+  {id:'chick',emoji:'🐣',name:'小鸡仔',trait:'天真稚嫩', stage3:'🐔'},
+];
+
+// 对话库：按场景+性格
+const DIALOGUES={
+  welcome:[
+    ['傲娇',['哼～你终于来了，我才没有在等你呢…好吧有一点点。今天也要好好学！','…来了啊。我正打盹呢，既然你来了那就开始学吧。']],
+    ['忠诚',['汪汪！你来了你来了！我等了好久！今天也要一起加油！','主人主人！今天学什么？我已经准备好了！']],
+    ['话痨',['来了来了！你来了！今天学什么学什么？语法？单词？快点开始！','欢迎欢迎热烈欢迎！今天天气真好，适合学习！对吧对吧？']],
+    ['智者',['……你来了。不急，慢慢来，稳扎稳打才是正道。','噢～你到了。今天的学习之路，咱们一步一步走。']],
+    ['神秘',['嘶…你来了。我能感知到今天会是高效的一天。','（缓缓抬头）来了就好。开始吧，别浪费时间。']],
+    ['勤奋',['吱吱！主人来了！我已经帮你把知识点整理好了！','又见面啦！今天也要满载而归哦！']],
+    ['活泼',['蹦蹦跳跳！主人来啦！今天学什么好玩的东西？','Ohhh 你终于来了！我等你等得都快跳起来啦！']],
+    ['狡黠',['哼～我就知道你会来的。今天咱们玩点聪明的，把难题都搞定！','来啦？我刚刚偷偷预习了一下，今天的内容很有意思哦～']],
+    ['学霸',['咕咕～夜深了，但我精神正好。今晚陪你学到尽兴！','Hoo～你来了。今晚的学习计划我已经帮你理好了。']],
+    ['笨拙',['扑通！（摔了一跤）…主人你来啦！我、我准备好学习了！','歪歪扭扭走过来…今天也要努力，虽然我走得慢，但我很认真！']],
+    ['慵懒',['呼～（打哈欠）来啦？好…那我也醒醒…学、学习吧…','ZZZ…啊！你来了！我正梦见我们在背单词呢…']],
+    ['霸气',['吼～你终于来了！今天有我在，什么难题都不怕！','（昂首）来了就好。有本狮坐镇，今天必能攻克所有难关！']],
+    ['呱噪',['呱！来了！呱呱！今天也要认真学习！呱！','呱～欢迎回来！池塘里的荷花都开了，就像你的知识一样盛开！']],
+    ['傲气',['哼！凡人，你终于来了。本龙允许你今天好好学习。','（盘旋）来了啊。有本龙守护，今天的知识都能掌握。']],
+    ['温柔',['✨ 你来了～今天也会是闪闪发光的一天哦。','（轻踏蹄子）欢迎回来。愿你今天的每一分钟都充满收获。']],
+  ],
+  incomplete:[
+    ['傲娇',['喂！你今天的任务还没完成呢！…我不是关心你，只是看不惯半途而废！','哼…还有任务没做完就跑？给我回来！']],
+    ['忠诚',['汪汪！主人！今天的任务还有没完成的！我会一直在这里等你的！','主人别走！再坚持一会儿！我相信你能做到！']],
+    ['话痨',['等等等等！还有没做完的！别跑别跑！先把任务收了！','喂喂喂！还没完呢！做完再走做完再走做完再走！']],
+    ['智者',['……别急，但也别停。还有一点，慢慢做完它。','不急不躁，但也莫忘。今天的任务还未完成哦。']],
+    ['神秘',['嘶嘶…我能感觉到，今天的任务还有未了之事。','（凝视）别走。你还有该完成的事。']],
+    ['勤奋',['吱！主人主人！还差一点点就完成了！别放弃！','吱吱吱！坚持就是胜利，还剩最后一口气！']],
+    ['活泼',['别跑！今天的任务还差一点！做完我陪你玩！','跳跳跳！还有没做完的！冲啊冲啊！']],
+    ['狡黠',['哈～想跑？我盯着的哦。今天的任务还没完呢。','（眨眼睛）别以为我没发现…还有几项没打勾呢～']],
+    ['学霸',['咕～别松懈。最后一点了，做完再休息。','Hoo…我夜视能力很好，看到你还有任务没完成。']],
+    ['笨拙',['扑通！别、别走！主人你还差一点啊！我摔倒了也要拦住你！','（摇摇晃晃）等、等一下！还没学完呢…']],
+    ['慵懒',['呼…（揉眼睛）别走嘛…再坚持一下下…我也在坚持不睡着…','ZZ…啊不能睡！主人你还有任务呢！']],
+    ['霸气',['站住！本王还没说你可以走！把任务完成再休息！','吼～任务未完，谁准你休息的？再来！']],
+    ['呱噪',['呱呱！没做完！没做完！回来！呱！','呱！你的任务在呼唤你！呱呱！']],
+    ['傲气',['凡人，本龙观你今日尚有未竟之业。速去完成！','（龙吟）未完成就想走？不可能的！']],
+    ['温柔',['亲爱的，还有一点点没完成呢～再坚持一下好吗？我在这里陪你。','别急别急～但也别放弃哦。还差最后一步呢。']],
+  ],
+  complete:[
+    ['傲娇',['哼…居然全都做完了。还不错嘛。…你厉害行了吧！','做完了？…嗯。比我想象的好一点点。就一点点。']],
+    ['忠诚',['汪汪汪！主人太棒了！全都完成了！你是最厉害的！','全部完成！主人是最棒的！我要摇尾巴摇一整天！']],
+    ['话痨',['做完了做完了做完了！太厉害了！你是学霸你是天才！','全部完成！厉害厉害厉害！比我还会说！']],
+    ['智者',['做到位了。不错不错。一步一个脚印，稳得很。','都完成了。很好。保持这个节奏，你会走得很远。']],
+    ['神秘',['嘶…全都完成了。很好。我预见到明天会更顺利。','（满意点头）任务清零。你很优秀。']],
+    ['勤奋',['吱吱吱！全部完成！主人你太能干了！我要把今天的成就存起来！','全做完了！吱！好满足！今天谷仓又满啦！']],
+    ['活泼',['蹦蹦蹦！全都做完了！主人好棒！今晚可以安心睡觉啦！','全部完成！耶！咱们去庆祝一下吧！']],
+    ['狡黠',['嘿嘿～全都搞定了。我就知道你能行，毕竟是我看中的人。','全做完啦！今天赢麻了！明天继续保持这个节奏哦～']],
+    ['学霸',['咕咕～深夜任务：全部完成。你可以安心休息了。','Hoo…完美。今天的知识都吸收完毕。晚安。']],
+    ['笨拙',['做、做完了？！主人好厉害！（激动得转圈摔倒）','全部完成！我、我太感动了！主人你真的好努力！']],
+    ['慵懒',['ZZZ…啊做完了？太棒了…那我可以安心睡了…你也快睡吧…','（半梦半醒）完成了啊…好厉害…明天也要这样哦…']],
+    ['霸气',['哈哈哈！全部拿下！有本狮在，没有完不成的任务！','吼！任务清零！今天你是王者！']],
+    ['呱噪',['呱呱！完成了！呱呱！大胜利！呱！','呱！全部完成！今晚的池塘为你而美！呱！']],
+    ['傲气',['哼，全都完成了。凡人，今日本龙对你刮目相看。','做完了。很好。龙族承认你的努力。']],
+    ['温柔',['✨ 全都完成了呢～你今天真是太棒了！好好休息吧。','每一件都做完了～你真让我骄傲。晚安，好梦。']],
+  ],
+  idle:[
+    ['傲娇',['…你盯着我干嘛？学你的习去！…不过你休息一下也行。','（假装睡觉，其实在看你）']],
+    ['忠诚',['汪！主人休息吗？那我趴在你旁边陪你～','（摇尾巴）需要我帮你拿什么吗？']],
+    ['话痨',['啦啦啦～今天天气真好～你学得怎么样啦？怎么样啦？','我不累我不累！你累不累？要不要喝水？']],
+    ['智者',['（慢慢爬过来）……人生如学习，贵在坚持。','闭目养神中……勿扰……其实你可以摸一下我的壳。']],
+    ['神秘',['嘶…（安静地盘着）我正冥想着明天的学习计划。','（一动不动）别打扰我思考…其实只是在发呆。']],
+    ['勤奋',['吱！我在整理今天的知识储备！你也检查一下？','吱吱～转轮跑起来！学习也要像我一样勤奋哦！']],
+    ['活泼',['跳来跳去！来呀来呀，学累了就和我一起蹦一会儿！','（竖起耳朵）主人你在干嘛？在干嘛在干嘛？']],
+    ['狡黠',['（歪头看你）在想什么？我猜你在想…今晚吃什么？','嘿～要不要我给你讲个笑话？关于两个数组的…']],
+    ['学霸',['咕～现在是深夜学习黄金时段，不过也要注意休息。','Hoo…你累了吗？我帮你盯着时间。']],
+    ['笨拙',['（站不稳）主、主人…要不要摸摸我的肚子…很软的…','扑通！啊没事没事，我只是想让你开心一下…']],
+    ['慵懒',['ZZZ…呼…竹子真好吃…啊什么？学习？哦对…学习…','（翻身）再睡五分钟…就五分钟…然后学习…']],
+    ['霸气',['（趴着但眼神犀利）休息好了就继续。王者不需要太多休息。','有我在，你随时可以放松一下。但记得回来。']],
+    ['呱噪',['呱！呱呱呱！（在唱歌）好听吗？呱！','呱～池塘的水满了～你的知识也满了～呱！']],
+    ['傲气',['（盘旋在空中，俯视着你）……别太累。龙族也需要休息。','凡人，准许你休息片刻。这是龙的恩赐。']],
+    ['温柔',['✨（轻轻靠近）累了就靠着我休息一会儿吧～','你需要什么吗？一杯水？一个拥抱？我都在。']],
+  ],
+  checkinPass:[
+    ['傲娇',['打卡通过了。…嗯，还不错。明天也要保持！','通过了。…没有很高兴啦。只是嘴角自己翘起来了。']],
+    ['忠诚',['汪汪！打卡成功！主人今天学够了！我太开心了！','通过了通过了！我就知道主人能做到！']],
+    ['话痨',['打卡成功打卡成功！达标了达标了！厉害厉害！','通过了！今天的学习量达标！撒花撒花！']],
+    ['智者',['打卡通过了。不骄不躁，明天继续稳步前进。','达标了。善。保持这个节奏即可。']],
+    ['神秘',['嘶…系统判定通过。如我所料，你今天状态不错。','通过了。明天的运势，我也看到了…会更好。']],
+    ['勤奋',['吱吱！打卡通过！今天的努力有回报了！存起来！','通过了！吱！我就知道努力不会白费！']],
+  ],
+  checkinFail:[
+    ['傲娇',['…没通过。别灰心啊，下次多学一会儿就好了。我在意的只是…算了不说了。','打卡没达标…哼，明天加倍补回来！我陪你！']],
+    ['忠诚',['汪汪…没关系的！明天我早点叫你起来学！一定能达标！','没通过…但主人别难过！失败是成功之母！']],
+    ['话痨',['没通过没通过…但没关系没关系！明天继续继续！','差一点点！明天多学五分钟就够了！']],
+    ['智者',['未达标。不必焦虑。知道差距在哪里，下次就能做得更好。','没通过。慢下来反思一下，明天调整策略即可。']],
+    ['神秘',['嘶…今天未达标。但我看见，明天你会更努力。','没通过。无妨，这只是暂时的。']],
+    ['勤奋',['吱…没通过啊。但是没关系！明天咱们再努力！','差一点点！明天我要更早叫醒你！']],
+  ],
+};
+
+function petTalk(context) {
+  const pet = data.pet;
+  if (!pet) return;
+  const pt = PET_TYPES.find(p => p.id === pet.type);
+  if (!pt) return;
+  // 找匹配的性格对话
+  const ctxDialogues = DIALOGUES[context] || DIALOGUES.idle;
+  let matched = ctxDialogues.find(d => pt.trait.includes(d[0]) || d[0]==='勤奋'&&pt.trait.includes('勤奋'));
+  if (!matched) matched = ctxDialogues[Math.floor(Math.random() * ctxDialogues.length)];
+  const msgs = matched[1];
+  const msg = msgs[Math.floor(Math.random() * msgs.length)];
+  const bubble = document.getElementById('petDialogueBubble');
+  if (bubble) {
+    bubble.textContent = msg;
+    bubble.style.display = 'block';
+    clearTimeout(pet._talkTimer);
+    pet._talkTimer = setTimeout(() => { bubble.style.display = 'none'; }, 5000);
+  }
+}
+
+function petWelcome() {
+  petTalk('welcome');
+}
+
+function petOnComplete() {
+  petTalk('complete');
+}
+
+function petOnIncomplete() {
+  petTalk('incomplete');
+}
+
+function petOnCheckin(passed) {
+  petTalk(passed ? 'checkinPass' : 'checkinFail');
+}
+
+function petIdle() {
+  petTalk('idle');
+}
+
+function renderPet() {
+  if (!data.pet) {
+    document.getElementById('petCard').style.display = 'none';
+    return;
+  }
+  document.getElementById('petCard').style.display = '';
+  const pt = PET_TYPES.find(p => p.id === data.pet.type);
+  if (!pt) return;
+  // 计算成长阶段
+  const adopted = new Date(data.pet.adoptedDate);
+  const now = new Date();
+  const daysSince = Math.floor((now - adopted) / (1000 * 60 * 60 * 24));
+  let stage = 'baby', stageLabel = '幼崽', stageEmoji = pt.emoji;
+  if (daysSince >= 30) { stage = 'adult'; stageLabel = '成年'; stageEmoji = pt.stage3 || pt.emoji; }
+  else if (daysSince >= 15) { stage = 'young'; stageLabel = '成长'; }
+  // 检查今天是否有完成的打卡（加速成长逻辑）
+  const today = getDateStr();
+  const hasPassedCheckin = Object.values(data.checkins).some(records => {
+    const todayRec = records[today];
+    return todayRec && todayRec.approved === true;
+  });
+  const doc = document.getElementById('petCard');
+  doc.className = `stat-card pet-card pet-${stage}`;
+  document.getElementById('petEmoji').textContent = stageEmoji;
+  document.getElementById('petCardLabel').textContent = data.pet.name;
+  const badge = document.getElementById('petStageBadge');
+  badge.textContent = stageLabel;
+  badge.className = `pet-stage-badge ${stage}`;
+  data.pet._lastSeenToday = today;
+}
+
+function selectPet(type) {
+  document.querySelectorAll('.pet-option').forEach(el => el.classList.remove('selected'));
+  const el = document.querySelector(`.pet-option[data-pet="${type}"]`);
+  if (el) el.classList.add('selected');
+  selectedPetType = type;
+  document.getElementById('confirmPetBtn').disabled = false;
+}
+
+let selectedPetType = null;
+
+function confirmPet() {
+  if (!selectedPetType) { showToast('请先选择一只宠物哦～', 'warning'); return; }
+  const name = document.getElementById('petName').value.trim() || PET_TYPES.find(p => p.id === selectedPetType).name;
+  data.pet = {
+    type: selectedPetType,
+    name: name,
+    adoptedDate: getDateStr(),
+  };
+  saveData(data);
+  document.getElementById('petSelect').classList.add('hidden');
+  renderPet();
+  initApp();
+  setTimeout(() => petWelcome(), 800);
+  showToast(`🎉 ${name} 成为你的学习伙伴啦！`, 'success');
+}
+
+function showPetSelect() {
+  const grid = document.getElementById('petGrid');
+  grid.innerHTML = PET_TYPES.map(pt =>
+    `<div class="pet-option" data-pet="${pt.id}" onclick="selectPet('${pt.id}')">
+      <span class="pet-opt-emoji">${pt.emoji}</span>
+      <div class="pet-opt-name">${pt.name}</div>
+      <div class="pet-opt-trait">${pt.trait}</div>
+    </div>`
+  ).join('');
+  selectedPetType = null;
+  document.getElementById('petName').value = '';
+  document.getElementById('confirmPetBtn').disabled = true;
+  document.getElementById('petSelect').classList.remove('hidden');
+}
+
+// 替换 openGate — 首次登录后进入宠物选择
+const _originalOpenGate = openGate;
+openGate = function() {
+  document.getElementById('gate').classList.add('hidden');
+  document.getElementById('gateInput').value = '';
+  document.getElementById('gateError').textContent = '';
+  if (!data.pet) {
+    // 首次使用：先选宠物
+    showPetSelect();
+  } else {
+    renderPet();
+    initApp();
+    setTimeout(() => petWelcome(), 800);
+  }
+};
+
 // ==================== 初始化 ====================
-function initApp(){initFixedCourses();checkStreak();checkOverdue();navigateTo('dashboard');updateCountdown();updateScheduleUI();setInterval(updateCountdown,1000);setInterval(checkOverdueAuto,60000);setInterval(updateScheduleUI,60000);updateGreeting();}
+function initApp(){initFixedCourses();checkStreak();checkOverdue();navigateTo('dashboard');updateCountdown();updateScheduleUI();renderPet();setInterval(updateCountdown,1000);setInterval(checkOverdueAuto,60000);setInterval(updateScheduleUI,60000);updateGreeting();}
 function updateGreeting(){const h=new Date().getHours();let e,t;if(h<6){e='🌙';t='夜深了，注意休息～';}else if(h<8){e='🌅';t='清晨好！今天加油！';}else if(h<12){e='☀️';t='上午好！精力充沛！';}else if(h<14){e='🍱';t='中午好！记得午休～';}else if(h<18){e='📖';t='下午好！继续加油！';}else if(h<21){e='🌆';t='晚上好！温故知新～';}else{e='🌛';t='快到总结时间了！';}document.getElementById('greetingEmoji').textContent=e;document.getElementById('greetingText').textContent=t;}
 function checkStreak(){const today=getDateStr();if(!data.activeDates)data.activeDates=[];if(!data.activeDates.includes(today))data.activeDates.push(today);if(data.lastActiveDate===today)return;if(data.lastActiveDate===getDateStr(-1))data.streak+=1;else if(data.lastActiveDate!==today)data.streak=1;data.lastActiveDate=today;saveData(data);}
 function checkOverdue(){const yesterday=getDateStr(-1);data.courses.forEach(c=>{const s=getSummary(c.id,yesterday);if(!s||!s.text){if(!data.overdueCourses[c.id])data.overdueCourses[c.id]=0;data.overdueCourses[c.id]+=Math.ceil(c.dailyLoad*0.5);}});saveData(data);}
-function checkOverdueAuto(){const now=new Date();if(now.getHours()>=23){const today=getDateStr();let has=false;data.courses.forEach(c=>{const s=getSummary(c.id,today);if(!s||!s.text){if(!data.overdueCourses[c.id])data.overdueCourses[c.id]=0;data.overdueCourses[c.id]+=Math.ceil(c.dailyLoad*0.5);has=true;}});if(has){saveData(data);renderAll();showToast('⚠️ 已过23:00！未总结课程明日学习量已增加','warning');}}}
+function checkOverdueAuto(){const now=new Date();if(now.getHours()>=23){const today=getDateStr();let has=false;data.courses.forEach(c=>{const s=getSummary(c.id,today);if(!s||!s.text){if(!data.overdueCourses[c.id])data.overdueCourses[c.id]=0;data.overdueCourses[c.id]+=Math.ceil(c.dailyLoad*0.5);has=true;}});if(has){saveData(data);renderAll();petOnIncomplete();showToast('⚠️ 已过23:00！未总结课程明日学习量已增加','warning');}}}
 function getEffectiveDailyLoad(c){return c.dailyLoad+(data.overdueCourses[c.id]||0);}
 function clearOverdue(cid){delete data.overdueCourses[cid];saveData(data);}
 function getSummary(cid,date){if(!data.summaries[cid])return null;return data.summaries[cid].find(s=>s.date===date)||null;}
@@ -519,7 +812,7 @@ function isDuplicateImage(cid,date,b64){const ci=getCheckin(cid,date);if(!ci||!c
 
 function uploadCheckinImage(cid){const input=document.createElement('input');input.type='file';input.accept='image/*';input.onchange=async function(){const file=input.files[0];if(!file)return;if(file.size>10*1024*1024){showToast('图片不能超过 10MB 哦～','warning');return;}const b64=await compressImage(file);const today=getDateStr();if(isDuplicateImage(cid,today,b64)){showToast('这张图片已经上传过了哦～','warning');return;}if(!data.checkins[cid])data.checkins[cid]={};if(!data.checkins[cid][today])data.checkins[cid][today]={images:[],studyMinutes:0,approved:null,reviewedAt:null};data.checkins[cid][today].images.push({id:generateId(),base64:b64,uploadedAt:new Date().toISOString()});saveData(data);renderCheckinArea();showToast('📸 图片上传成功！','success');};input.click();}
 
-function submitCheckin(cid){const today=getDateStr();const ci=getCheckin(cid,today);if(!ci||!ci.images||ci.images.length===0){showToast('请先上传至少一张截图～','warning');return;}const minutes=parseInt(prompt(`📊 请输入今天「${getCourseName(cid)}」的学习时长（分钟）：`,'0'));if(isNaN(minutes)||minutes<0){showToast('请输入有效的分钟数～','warning');return;}const course=data.courses.find(c=>c.id===cid);if(!course)return;ci.studyMinutes=minutes;ci.approved=minutes>=course.dailyLoad;ci.reviewedAt=new Date().toISOString();saveData(data);renderCheckinArea();if(ci.approved){showToast('✅ 打卡成功！学习时长达标～','success');}else{showToast('❌ 未达标！今日学习时长不足，请继续努力～','error');}}
+function submitCheckin(cid){const today=getDateStr();const ci=getCheckin(cid,today);if(!ci||!ci.images||ci.images.length===0){showToast('请先上传至少一张截图～','warning');return;}const minutes=parseInt(prompt(`📊 请输入今天「${getCourseName(cid)}」的学习时长（分钟）：`,'0'));if(isNaN(minutes)||minutes<0){showToast('请输入有效的分钟数～','warning');return;}const course=data.courses.find(c=>c.id===cid);if(!course)return;ci.studyMinutes=minutes;ci.approved=minutes>=course.dailyLoad;ci.reviewedAt=new Date().toISOString();saveData(data);renderCheckinArea();petOnCheckin(ci.approved);if(ci.approved){showToast('✅ 打卡成功！学习时长达标～','success');}else{showToast('❌ 未达标！今日学习时长不足，请继续努力～','error');}}
 
 function removeCheckinImage(cid,imgId){const today=getDateStr();const ci=getCheckin(cid,today);if(!ci)return;ci.images=ci.images.filter(x=>x.id!==imgId);if(ci.images.length===0){delete data.checkins[cid][today];if(Object.keys(data.checkins[cid]).length===0)delete data.checkins[cid];}saveData(data);renderCheckinArea();showToast('图片已删除','success');}
 
@@ -542,7 +835,7 @@ function renderCheckinArea(){const cid=viewData.courseId;if(!cid)return;const co
 }
 
 // ==================== Dashboard 渲染 ====================
-function renderAll(){if(currentView!=='dashboard')return;renderStats();renderSchoolsInHeader();renderSchedules();renderPlans();renderExamSection();}
+function renderAll(){if(currentView!=='dashboard')return;renderStats();renderSchoolsInHeader();renderSchedules();renderPlans();renderExamSection();renderPet();}
 function renderStats(){const today=getDateStr();document.getElementById('statCourses').textContent=data.courses.length;document.getElementById('statDone').textContent=data.schedules.filter(s=>s.date===today&&s.done).length;document.getElementById('statSummaries').textContent=getTodaySummaryCount();document.getElementById('statCheckins').textContent=getTodayCheckinCount();document.getElementById('statStreak').textContent=data.streak;document.getElementById('planBadge').textContent=data.courses.length+'门';document.getElementById('scheduleBadge').textContent=data.schedules.filter(s=>s.date===today).length+'项';const oc=Object.keys(data.overdueCourses).length;document.getElementById('deadlineWarning').style.display=oc>0?'block':'none';if(oc>0)document.getElementById('overdueCount').textContent=oc;}
 function renderSchoolsInHeader(){const container=document.getElementById('schoolChips');if(data.targetSchools.length===0){container.innerHTML='<span class="school-chip school-chip-add" onclick="openSchoolModal()">+ 添加目标院校</span>';return;}container.innerHTML=data.targetSchools.map(s=>`<span class="school-chip" onclick="editSchool('${s.id}')" title="${escapeHtml(s.notes||'')}">🏫 ${escapeHtml(s.name)}·${escapeHtml(s.major)}</span>`).join('')+'<span class="school-chip school-chip-add" onclick="openSchoolModal()">+</span>';}
 function renderSchedules(){const today=getDateStr(),todaySchedules=data.schedules.filter(s=>s.date===today),container=document.getElementById('scheduleList');if(todaySchedules.length===0){container.innerHTML=`<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">${new Date().getHours()<8?'⏰ 8:00后开放添加～':'还没有安排哦～'}</div></div>`;return;}todaySchedules.sort((a,b)=>a.time.localeCompare(b.time));const now=new Date(),nowTime=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;container.innerHTML=todaySchedules.map(s=>{const course=data.courses.find(c=>c.id===s.courseId);return`<div class="schedule-item ${s.done?'done':''} ${!s.done&&s.time<nowTime?'past':''}"><div class="schedule-time">${s.time}</div><div class="schedule-content"><div class="schedule-title">${escapeHtml(s.title)} ${course?'<span class="tag tag-pink">'+escapeHtml(course.name)+'</span>':''}</div>${s.desc?`<div class="schedule-desc">${escapeHtml(s.desc)}</div>`:''}</div><div class="schedule-check ${s.done?'checked':''}" onclick="toggleSchedule('${s.id}')">${s.done?'✓':''}</div><button style="background:none;border:none;cursor:pointer;font-size:13px;padding:2px;opacity:0.5;" onclick="deleteSchedule('${s.id}')">🗑️</button></div>`;}).join('');}
@@ -623,7 +916,7 @@ function resetDailySchedule(){if(!confirm('确定重置今日安排？'))return;
 
 // ==================== 总结 ====================
 function openSummaryModal(cid){const c=data.courses.find(x=>x.id===cid);if(!c)return;document.getElementById('summaryCourseId').value=cid;document.getElementById('summaryCourseLabel').textContent=(c.icon||'📖')+' '+c.name;const ts=getTodaySummary(cid);document.getElementById('summaryText').value=ts?ts.text:'';document.getElementById('summaryAmount').value=ts?(ts.amount||0):0;openModal('summaryModal');}
-function saveSummary(){const cid=document.getElementById('summaryCourseId').value,text=document.getElementById('summaryText').value.trim(),amount=parseInt(document.getElementById('summaryAmount').value)||0,today=getDateStr();if(!text){showToast('请写一点总结～','warning');return;}if(!data.summaries[cid])data.summaries[cid]=[];const ex=data.summaries[cid].find(s=>s.date===today);if(ex){ex.text=text;ex.amount=amount;ex.time=new Date().toISOString();}else{data.summaries[cid].push({date:today,text,amount,time:new Date().toISOString()});}const c=data.courses.find(x=>x.id===cid);if(c&&amount>0)c.progress+=amount;clearOverdue(cid);saveData(data);closeModal('summaryModal');renderAll();showToast('🎉 总结提交成功！','success');}
+function saveSummary(){const cid=document.getElementById('summaryCourseId').value,text=document.getElementById('summaryText').value.trim(),amount=parseInt(document.getElementById('summaryAmount').value)||0,today=getDateStr();if(!text){showToast('请写一点总结～','warning');return;}if(!data.summaries[cid])data.summaries[cid]=[];const ex=data.summaries[cid].find(s=>s.date===today);if(ex){ex.text=text;ex.amount=amount;ex.time=new Date().toISOString();}else{data.summaries[cid].push({date:today,text,amount,time:new Date().toISOString()});}const c=data.courses.find(x=>x.id===cid);if(c&&amount>0)c.progress+=amount;clearOverdue(cid);saveData(data);closeModal('summaryModal');renderAll();petOnComplete();showToast('🎉 总结提交成功！','success');}
 
 // ==================== 院校 ====================
 function openSchoolModal(editId){document.getElementById('schoolModalTitle').textContent=editId?'✏️ 编辑院校':'🏫 添加目标院校';document.getElementById('editSchoolId').value=editId||'';if(editId){const s=data.targetSchools.find(x=>x.id===editId);if(s){document.getElementById('schoolName').value=s.name;document.getElementById('schoolMajor').value=s.major;document.getElementById('schoolNotes').value=s.notes||'';}}else{document.getElementById('schoolName').value='';document.getElementById('schoolMajor').value='';document.getElementById('schoolNotes').value='';}openModal('schoolModal');}
