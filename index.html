@@ -60,7 +60,7 @@
 
   /* 主布局 — 横屏优化 */
   .app{position:relative;z-index:1;max-width:1300px;margin:0 auto;padding:15px 20px;}
-  .header{background:white;border-radius:var(--radius);padding:16px 24px;margin-bottom:14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:15px;flex-wrap:wrap;position:relative;overflow:hidden;}
+  .header{background:white;border-radius:var(--radius);padding:16px 24px;margin-bottom:14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:15px;flex-wrap:wrap;position:relative;overflow:visible;}
   .header::after{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;background:radial-gradient(circle,rgba(255,179,198,0.3) 0%,transparent 70%);border-radius:50%;}
   .greeting{position:relative;z-index:1;display:flex;align-items:center;gap:10px;flex-shrink:0;}
   .greeting-emoji{font-size:36px;display:inline-block;animation:wave 2s ease-in-out infinite;}
@@ -237,20 +237,62 @@
   .streak-cal-head{font-weight:700;font-size:11px;color:var(--text-light);padding:4px 0;}
 
   /* 宠物 */
-  .pet-card{cursor:pointer;position:relative;overflow:visible;}
-  .pet-card:hover{transform:translateY(-3px);}
-  .pet-dialogue{position:absolute;top:-45px;left:50%;transform:translateX(-50%);background:white;padding:6px 12px;border-radius:20px;font-size:11px;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,0.1);animation:popIn 0.4s ease;z-index:5;max-width:180px;text-align:center;line-height:1.4;}
-  .pet-dialogue::after{content:'';position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:6px solid white;}
-  @keyframes popIn{0%{opacity:0;transform:translateX(-50%) translateY(10px);}100%{opacity:1;transform:translateX(-50%) translateY(0);}}
-  @keyframes petBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
-  .pet-emoji{font-size:36px;display:inline-block;}
-  .pet-baby .pet-emoji{font-size:24px;}
-  .pet-young .pet-emoji{font-size:36px;}
-  .pet-adult .pet-emoji{font-size:48px;}
-  .pet-stage-badge{font-size:9px;padding:1px 6px;border-radius:50px;font-weight:600;margin-top:2px;}
-  .pet-stage-badge.baby{background:#ffe0e8;color:#c0395b;}
-  .pet-stage-badge.young{background:#fff3cd;color:#b8860b;}
-  .pet-stage-badge.adult{background:#d4edda;color:#155724;}
+  /* ===== CSS 手绘宠物 ===== */
+  .pet-char{position:relative;display:inline-flex;flex-direction:column;align-items:center;}
+  /* 耳朵/角 — 每种宠物不同 */
+  .pet-ears{position:absolute;top:-6px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:0;}
+  .pet-ear{width:10px;height:14px;border-radius:50%;}
+  .pet-ear.left{transform:rotate(-15deg);} .pet-ear.right{transform:rotate(15deg);}
+  /* 身体 */
+  .pet-body{width:36px;height:36px;border-radius:50%;position:relative;z-index:1;transition:all 0.3s;}
+  /* 眼睛 */
+  .pet-eyes{position:absolute;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:8px;}
+  .pet-eye{width:5px;height:6px;background:#333;border-radius:50%;animation:petBlink 4s ease-in-out infinite;}
+  @keyframes petBlink{0%,95%,100%{transform:scaleY(1);}97%{transform:scaleY(0.1);}}
+  /* 嘴巴 */
+  .pet-mouth{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:6px;height:3px;border-bottom:2px solid #333;border-radius:0 0 6px 6px;}
+  /* 腮红 */
+  .pet-blush{position:absolute;top:15px;width:6px;height:4px;background:rgba(255,150,150,0.5);border-radius:50%;}
+  .pet-blush.left{left:3px;} .pet-blush.right{right:3px;}
+  /* 腿 */
+  .pet-legs{display:flex;gap:6px;margin-top:-4px;z-index:0;}
+  .pet-leg{width:8px;height:10px;border-radius:0 0 5px 5px;transition:transform 0.2s;}
+  /* 尾巴 */
+  .pet-tail{position:absolute;bottom:4px;right:-8px;width:10px;height:6px;border-radius:0 50% 50% 0;z-index:0;transform-origin:left center;}
+  .pet-tail.wag{animation:tailWag 0.6s ease-in-out infinite;}
+  @keyframes tailWag{0%,100%{transform:rotate(0deg);}50%{transform:rotate(25deg);}}
+  /* 走路动画 */
+  .pet-walk .pet-body{animation:walkBody 0.9s ease-in-out infinite;}
+  .pet-walk .pet-leg.left{animation:walkLegL 0.9s ease-in-out infinite;}
+  .pet-walk .pet-leg.right{animation:walkLegR 0.9s ease-in-out infinite;}
+  @keyframes walkBody{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+  @keyframes walkLegL{0%,100%{transform:translateY(0) rotate(0deg);}25%{transform:translateY(-3px) rotate(10deg);}50%{transform:translateY(0) rotate(0deg);}75%{transform:translateY(2px) rotate(-8deg);}}
+  @keyframes walkLegR{0%,100%{transform:translateY(0) rotate(0deg);}25%{transform:translateY(2px) rotate(-8deg);}50%{transform:translateY(0) rotate(0deg);}75%{transform:translateY(-3px) rotate(10deg);}}
+  /* 睡觉 */
+  .pet-sleep .pet-body{animation:sleepBody 0.8s ease forwards,sleepBreath 3s 0.8s ease-in-out infinite;}
+  .pet-sleep .pet-legs{opacity:0.5;}
+  .pet-sleep .pet-leg.left{transform:rotate(-30deg) translateY(4px);}
+  .pet-sleep .pet-leg.right{transform:rotate(-30deg) translateY(4px);}
+  .pet-sleep .pet-eyes .pet-eye{animation:none;transform:scaleY(0.1);}
+  .pet-sleep .pet-mouth{transform:translateX(-50%) scale(0.8);}
+  .pet-sleep .pet-tail.wag{animation:none;transform:rotate(-10deg);}
+  @keyframes sleepBody{0%{transform:rotate(0);}100%{transform:rotate(80deg) translateY(6px);}}
+  @keyframes sleepBreath{0%,100%{transform:rotate(80deg) translateY(6px) scale(1,0.92);}50%{transform:rotate(80deg) translateY(6px) scale(1.04,0.96);}}
+  @keyframes floatZzz{0%,100%{opacity:0.6;transform:translateY(0);}50%{opacity:1;transform:translateY(-6px);}}
+  /* 影 */
+  .pet-shadow{width:26px;height:6px;background:rgba(0,0,0,0.1);border-radius:50%;margin-top:-1px;}
+  .pet-dialogue{background:white;padding:7px 14px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;box-shadow:0 3px 15px rgba(0,0,0,0.12);animation:popIn 0.4s ease;max-width:180px;text-align:center;line-height:1.5;margin:2px auto 0;position:relative;}
+  .pet-dialogue::after{content:'';position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:7px solid white;}
+  @keyframes popIn{0%{opacity:0;transform:translateY(10px);}100%{opacity:1;transform:translateY(0);}}
+  /* 信息弹窗 */
+  .pet-info-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:600;opacity:0;visibility:hidden;transition:all 0.3s;}
+  .pet-info-modal.show{opacity:1;visibility:visible;}
+  .pet-info-card{background:white;border-radius:24px;padding:30px;max-width:380px;width:90%;text-align:center;box-shadow:var(--shadow-lg);position:relative;overflow:hidden;}
+  .pet-info-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:5px;background:linear-gradient(90deg,#ffb3c6,#c8b6ff,#7ed8bf,#ffe066);}
+  .pet-info-stats{display:flex;gap:10px;justify-content:center;margin:16px 0;flex-wrap:wrap;}
+  .pet-info-stat{background:#fafafa;border-radius:12px;padding:10px 16px;min-width:70px;}
+  .pet-info-stat .val{font-size:22px;font-weight:800;color:var(--text);}
+  .pet-info-stat .lbl{font-size:10px;color:var(--text-light);}
 
   /* 宠物选择界面 */
   .pet-select-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:900;transition:opacity 0.5s,visibility 0.5s;}
@@ -324,6 +366,12 @@
         <div><div class="greeting-text" id="greetingText"></div><div class="greeting-date" id="greetingDate"></div></div>
       </div>
       <div class="school-chips" id="schoolChips"></div>
+      <!-- 宠物活动区 -->
+      <div id="petPlayArea" style="display:none;position:relative;z-index:0;flex:2;min-width:180px;height:52px;overflow:visible;">
+        <div id="petPlayBubble" style="position:absolute;top:2px;left:50%;z-index:3;"></div>
+        <div id="petPlayChar" class="pet-char" style="position:absolute;bottom:2px;left:-50px;z-index:2;transition:left 7s ease-in-out;"></div>
+        <span id="petPlayZzz" style="position:absolute;top:2px;left:48%;font-size:12px;font-weight:700;color:#8d6e63;animation:floatZzz 3s ease-in-out infinite;display:none;">💤 Zzz...</span>
+      </div>
       <div class="header-actions">
         <button class="btn btn-outline btn-sm" onclick="openAddCourseModal()">+ 课程</button>
         <button class="btn btn-outline btn-sm" id="btnAddSchedule" onclick="openAddScheduleModal()">+ 安排</button>
@@ -337,11 +385,14 @@
       <div class="stat-card mint"><div class="stat-icon">📝</div><div class="stat-value" id="statSummaries">0</div><div class="stat-label">总结</div></div>
       <div class="stat-card green"><div class="stat-icon">📸</div><div class="stat-value" id="statCheckins">0</div><div class="stat-label">今日打卡</div></div>
       <div class="stat-card yellow" style="cursor:pointer;" onclick="openStreakCalendar()"><div class="stat-icon">🔥</div><div class="stat-value" id="statStreak">0</div><div class="stat-label">连续天</div></div>
-      <div class="stat-card pet-card" id="petCard" style="cursor:pointer;" onclick="petTalk()" title="点击和宠物互动">
-        <div id="petDialogueBubble"></div>
-        <div class="pet-emoji" id="petEmoji">🐣</div>
-        <div class="stat-label" id="petCardLabel">学习伙伴</div>
-        <div class="pet-stage-badge baby" id="petStageBadge">幼崽</div>
+      <div class="stat-card" id="petHouse" style="display:none;cursor:pointer;background:linear-gradient(180deg,#fff8e1,#fff3cd);overflow:visible;padding-top:4px;" onclick="openPetInfo()" title="点击查看宠物">
+        <div style="width:0;height:0;border-left:45px solid transparent;border-right:45px solid transparent;border-bottom:16px solid #e59866;margin:-4px auto 0;filter:drop-shadow(0 1px 1px rgba(0,0,0,0.08));"></div>
+        <div id="petDialogueBubble" style="position:relative;min-height:0;"></div>
+        <div id="petHouseChar" class="pet-char" style="margin:0 auto;"></div>
+        <div id="petHouseName" style="font-size:10px;font-weight:700;color:#6d4c41;margin-top:4px;">学习伙伴</div>
+        <div style="width:16px;height:18px;background:#8d6e63;border-radius:8px 8px 0 0;margin:2px auto 0;position:relative;">
+          <div style="position:absolute;top:4px;right:3px;width:3px;height:3px;background:#ffd54f;border-radius:50%;"></div>
+        </div>
       </div>
     </div>
 
@@ -400,6 +451,23 @@
       <div class="section-header"><span class="section-icon">📌</span><span class="section-title">知识点</span><span class="section-badge" id="kpBadge">0条</span><button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="openKpModal()">+ 知识点</button></div>
       <div class="kp-list" id="kpList"><div class="empty-state"><div class="empty-state-icon">✨</div><div class="empty-state-text">还没有知识点～</div></div></div>
     </div>
+  </div>
+</div>
+
+<!-- 宠物信息弹窗 -->
+<div class="pet-info-modal" id="petInfoModal">
+  <div class="pet-info-card">
+    <div class="pet-info-emoji" id="petInfoEmoji" style="display:flex;justify-content:center;align-items:center;min-height:90px;"></div>
+    <div class="pet-info-name" id="petInfoName"></div>
+    <div style="color:var(--text-light);font-size:13px;" id="petInfoType"></div>
+    <div class="pet-info-stats">
+      <div class="pet-info-stat"><div class="val" id="petInfoAge">0</div><div class="lbl">陪伴天数</div></div>
+      <div class="pet-info-stat"><div class="val" id="petInfoMonth">0</div><div class="lbl">成长月</div></div>
+      <div class="pet-info-stat"><div class="val" id="petInfoStage">🟢</div><div class="lbl">阶段</div></div>
+    </div>
+    <div style="font-size:12px;color:var(--text-light);" id="petInfoAdopted"></div>
+    <div style="font-size:13px;color:var(--text);margin-top:8px;font-style:italic;" id="petInfoSaying"></div>
+    <div class="form-actions"><button class="btn btn-outline btn-sm" onclick="closeModal('petInfoModal')">❤️ 好的</button></div>
   </div>
 </div>
 
@@ -546,31 +614,76 @@ document.addEventListener('keydown',function(e){if(e.key==='Enter'&&!document.ge
 
 // ==================== 宠物系统 ====================
 const PET_TYPES=[
-  {id:'cat',emoji:'🐱',name:'小猫咪',trait:'傲娇高冷', stage3:'🐈'},
-  {id:'dog',emoji:'🐶',name:'小狗狗',trait:'忠诚热情', stage3:'🐕'},
-  {id:'parrot',emoji:'🦜',name:'小鹦鹉',trait:'话痨复读机', stage3:'🦜'},
-  {id:'turtle',emoji:'🐢',name:'小乌龟',trait:'慢悠悠智者', stage3:'🐢'},
-  {id:'snake',emoji:'🐍',name:'小蛇蛇',trait:'冷静神秘', stage3:'🐍'},
-  {id:'hamster',emoji:'🐹',name:'小仓鼠',trait:'勤劳囤积', stage3:'🐹'},
-  {id:'rabbit',emoji:'🐰',name:'小兔子',trait:'活泼跳脱', stage3:'🐰'},
-  {id:'fox',emoji:'🦊',name:'小狐狸',trait:'聪明狡黠', stage3:'🦊'},
-  {id:'owl',emoji:'🦉',name:'猫头鹰',trait:'深夜学霸', stage3:'🦉'},
-  {id:'penguin',emoji:'🐧',name:'小企鹅',trait:'笨拙努力', stage3:'🐧'},
-  {id:'panda',emoji:'🐼',name:'小熊猫',trait:'慵懒可爱', stage3:'🐼'},
-  {id:'lion',emoji:'🦁',name:'小狮子',trait:'霸气守护', stage3:'🦁'},
-  {id:'frog',emoji:'🐸',name:'小青蛙',trait:'冷静呱噪', stage3:'🐸'},
-  {id:'dragon',emoji:'🐲',name:'小龙',trait:'傲气守护', stage3:'🐉'},
-  {id:'unicorn',emoji:'🦄',name:'独角兽',trait:'梦幻温柔', stage3:'🦄'},
-  {id:'squirrel',emoji:'🐿️',name:'小松鼠',trait:'勤奋收藏', stage3:'🐿️'},
-  {id:'raccoon',emoji:'🦝',name:'小浣熊',trait:'好奇探索', stage3:'🦝'},
-  {id:'koala',emoji:'🐨',name:'小考拉',trait:'爱睡认真', stage3:'🐨'},
-  {id:'flamingo',emoji:'🦩',name:'火烈鸟',trait:'优雅自信', stage3:'🦩'},
-  {id:'whale',emoji:'🐳',name:'小鲸鱼',trait:'温柔深沉', stage3:'🐋'},
-  {id:'butterfly',emoji:'🦋',name:'小蝴蝶',trait:'轻盈乐观', stage3:'🦋'},
-  {id:'bee',emoji:'🐝',name:'小蜜蜂',trait:'勤劳团队', stage3:'🐝'},
-  {id:'hedgehog',emoji:'🦔',name:'小刺猬',trait:'外刚内柔', stage3:'🦔'},
-  {id:'chick',emoji:'🐣',name:'小鸡仔',trait:'天真稚嫩', stage3:'🐔'},
+  {id:'cat',emoji:'🐱',stage3:'🐈',name:'小猫咪',trait:'傲娇高冷',body:'#ffcc80',ear:'#ff9800',tail:'#ff9800',leg:'#ffb74d',earType:'point',face:'😺'},
+  {id:'dog',emoji:'🐶',stage3:'🐕',name:'小狗狗',trait:'忠诚热情',body:'#f4c069',ear:'#c68642',tail:'#c68642',leg:'#e2a456',earType:'flop',face:'🐶'},
+  {id:'parrot',emoji:'🦜',stage3:'🦜',name:'小鹦鹉',trait:'话痨复读机',body:'#4caf50',ear:'#ff5722',tail:'#2196f3',leg:'#66bb6a',earType:'crest',face:'🦜'},
+  {id:'turtle',emoji:'🐢',stage3:'🐢',name:'小乌龟',trait:'慢悠悠智者',body:'#8bc34a',ear:'#4e7a27',tail:'#4e7a27',leg:'#7cb342',earType:'none',face:'🐢'},
+  {id:'snake',emoji:'🐍',stage3:'🐍',name:'小蛇蛇',trait:'冷静神秘',body:'#66bb6a',ear:'#388e3c',tail:'#388e3c',leg:'#81c784',earType:'none',face:'🐍'},
+  {id:'hamster',emoji:'🐹',stage3:'🐹',name:'小仓鼠',trait:'勤劳囤积',body:'#f5c778',ear:'#e69a45',tail:'#e69a45',leg:'#e8b45c',earType:'round',face:'🐹'},
+  {id:'rabbit',emoji:'🐰',stage3:'🐰',name:'小兔子',trait:'活泼跳脱',body:'#fafafa',ear:'#f48fb1',tail:'#fafafa',leg:'#e0e0e0',earType:'long',face:'🐰'},
+  {id:'fox',emoji:'🦊',stage3:'🦊',name:'小狐狸',trait:'聪明狡黠',body:'#ff8a50',ear:'#ff6d00',tail:'#ff6d00',leg:'#ff9e60',earType:'point',face:'🦊'},
+  {id:'owl',emoji:'🦉',stage3:'🦉',name:'猫头鹰',trait:'深夜学霸',body:'#8d6e63',ear:'#5d4037',tail:'#5d4037',leg:'#a1887f',earType:'tuft',face:'🦉'},
+  {id:'penguin',emoji:'🐧',stage3:'🐧',name:'小企鹅',trait:'笨拙努力',body:'#455a64',ear:'#1c313a',tail:'#1c313a',leg:'#607d8b',earType:'none',face:'🐧'},
+  {id:'panda',emoji:'🐼',stage3:'🐼',name:'小熊猫',trait:'慵懒可爱',body:'#fafafa',ear:'#333',tail:'#fafafa',leg:'#424242',earType:'round',face:'🐼'},
+  {id:'lion',emoji:'🦁',stage3:'🦁',name:'小狮子',trait:'霸气守护',body:'#e6a445',ear:'#c67a20',tail:'#c67a20',leg:'#d4943a',earType:'round',face:'🦁'},
+  {id:'frog',emoji:'🐸',stage3:'🐸',name:'小青蛙',trait:'冷静呱噪',body:'#66bb6a',ear:'#2e7d32',tail:'#2e7d32',leg:'#81c784',earType:'bulge',face:'🐸'},
+  {id:'dragon',emoji:'🐲',stage3:'🐉',name:'小龙',trait:'傲气守护',body:'#4caf50',ear:'#ff9800',tail:'#ff9800',leg:'#66bb6a',earType:'horn',face:'🐲'},
+  {id:'unicorn',emoji:'🦄',stage3:'🦄',name:'独角兽',trait:'梦幻温柔',body:'#f8bbd0',ear:'#e1bee7',tail:'#ce93d8',leg:'#f48fb1',earType:'horn',face:'🦄'},
+  {id:'squirrel',emoji:'🐿️',stage3:'🐿️',name:'小松鼠',trait:'勤奋收藏',body:'#d4a373',ear:'#8d5524',tail:'#8d5524',leg:'#c49560',earType:'point',face:'🐿️'},
+  {id:'raccoon',emoji:'🦝',stage3:'🦝',name:'小浣熊',trait:'好奇探索',body:'#9e9e9e',ear:'#424242',tail:'#616161',leg:'#bdbdbd',earType:'round',face:'🦝'},
+  {id:'koala',emoji:'🐨',stage3:'🐨',name:'小考拉',trait:'爱睡认真',body:'#bdbdbd',ear:'#757575',tail:'#757575',leg:'#e0e0e0',earType:'fluffy',face:'🐨'},
+  {id:'flamingo',emoji:'🦩',stage3:'🦩',name:'火烈鸟',trait:'优雅自信',body:'#f48fb1',ear:'#e91e63',tail:'#e91e63',leg:'#f8bbd0',earType:'none',face:'🦩'},
+  {id:'whale',emoji:'🐳',stage3:'🐋',name:'小鲸鱼',trait:'温柔深沉',body:'#64b5f6',ear:'#1565c0',tail:'#1565c0',leg:'#90caf9',earType:'none',face:'🐳'},
+  {id:'butterfly',emoji:'🦋',stage3:'🦋',name:'小蝴蝶',trait:'轻盈乐观',body:'#ce93d8',ear:'#e1bee7',tail:'#e1bee7',leg:'#ba68c8',earType:'wing',face:'🦋'},
+  {id:'bee',emoji:'🐝',stage3:'🐝',name:'小蜜蜂',trait:'勤劳团队',body:'#ffee58',ear:'#1a1a1a',tail:'#1a1a1a',leg:'#ffd54f',earType:'wing',face:'🐝'},
+  {id:'hedgehog',emoji:'🦔',stage3:'🦔',name:'小刺猬',trait:'外刚内柔',body:'#a1887f',ear:'#5d4037',tail:'#5d4037',leg:'#bcaaa4',earType:'round',face:'🦔'},
+  {id:'chick',emoji:'🐣',stage3:'🐔',name:'小鸡仔',trait:'天真稚嫩',body:'#ffe082',ear:'#ff8f00',tail:'#ff8f00',leg:'#ffca28',earType:'crest',face:'🐣'},
 ];
+
+// 构建手绘宠物 HTML
+function buildPetChar(idPrefix, size) {
+  const s = size || 34;
+  const hs = s/2, qs = s/4, ts = s/3;
+  return `<div class="pet-ears" id="${idPrefix}Ears"><div class="pet-ear left"></div><div class="pet-ear right"></div></div>
+<div class="pet-body" id="${idPrefix}Body" style="width:${s}px;height:${s}px;">
+  <div class="pet-blush left"></div><div class="pet-blush right"></div>
+  <div class="pet-eyes" id="${idPrefix}Eyes"><div class="pet-eye" id="${idPrefix}EyeL"></div><div class="pet-eye" id="${idPrefix}EyeR"></div></div>
+  <div class="pet-mouth"></div>
+</div>
+<div class="pet-legs" id="${idPrefix}Legs"><div class="pet-leg left" id="${idPrefix}LegL"></div><div class="pet-leg right" id="${idPrefix}LegR"></div></div>
+<div class="pet-shadow"></div>`;
+}
+
+// 应用宠物颜色/特征
+function applyPetColors(container, pt, size, hasTail) {
+  const s = size || 34;
+  const body = container.querySelector('.pet-body'); if (body) body.style.background = `radial-gradient(circle at 40% 35%,${lighten(pt.body,30)},${pt.body})`;
+  const ears = container.querySelectorAll('.pet-ear'); ears.forEach(e => e.style.background = pt.ear);
+  const legs = container.querySelectorAll('.pet-leg'); legs.forEach(l => l.style.background = pt.leg);
+  // 调整耳朵形状
+  if (pt.earType === 'point') { ears.forEach(e => { e.style.width = '10px'; e.style.height = '14px'; e.style.borderRadius = '50% 50% 30% 30%'; }); }
+  else if (pt.earType === 'flop') { ears.forEach(e => { e.style.width = '10px'; e.style.height = '10px'; e.style.borderRadius = '50%'; e.style.marginTop = '6px'; }); }
+  else if (pt.earType === 'long') { ears.forEach(e => { e.style.width = '8px'; e.style.height = '22px'; e.style.borderRadius = '50%'; }); }
+  else if (pt.earType === 'round') { ears.forEach(e => { e.style.width = '10px'; e.style.height = '10px'; e.style.borderRadius = '50%'; }); }
+  else if (pt.earType === 'horn') { ears.forEach(e => { e.style.width = '6px'; e.style.height = '12px'; e.style.borderRadius = '3px 3px 0 0'; }); }
+  else if (pt.earType === 'crest') { ears.forEach(e => { e.style.width = '6px'; e.style.height = '8px'; e.style.borderRadius = '50% 50% 0 0'; e.style.marginTop = '-2px'; }); }
+  else if (pt.earType === 'tuft') { ears.forEach(e => { e.style.width = '8px'; e.style.height = '10px'; e.style.borderRadius = '50% 3px 50% 3px'; }); }
+  else if (pt.earType === 'bulge') { ears.forEach(e => { e.style.width = '8px'; e.style.height = '8px'; e.style.borderRadius = '50%'; e.style.marginTop = '-8px'; }); }
+  else if (pt.earType === 'fluffy') { ears.forEach(e => { e.style.width = '12px'; e.style.height = '10px'; e.style.borderRadius = '60%'; }); }
+  else if (pt.earType === 'wing') { ears.forEach(e => { e.style.width = '8px'; e.style.height = '14px'; e.style.borderRadius = '50% 3px 3px 50%'; }); }
+  else if (pt.earType === 'none') { const wrap = container.querySelector('.pet-ears'); if(wrap) wrap.style.display = 'none'; }
+  // 尾巴
+  if (hasTail) {
+    let tail = container.querySelector('.pet-tail');
+    if (!tail) { tail = document.createElement('div'); tail.className = 'pet-tail wag'; container.querySelector('.pet-body').appendChild(tail); }
+    tail.style.background = pt.tail || pt.ear;
+  }
+}
+function lighten(hex, pct) {
+  const num = parseInt(hex.replace('#',''),16);
+  const r = Math.min(255, (num>>16) + pct), g = Math.min(255, ((num>>8)&0xFF) + pct), b = Math.min(255, (num&0xFF) + pct);
+  return `rgb(${r},${g},${b})`;
+}
 
 // 对话库：按场景+性格
 const DIALOGUES={
@@ -665,70 +778,191 @@ function petTalk(context) {
   if (!pet) return;
   const pt = PET_TYPES.find(p => p.id === pet.type);
   if (!pt) return;
-  // 找匹配的性格对话
   const ctxDialogues = DIALOGUES[context] || DIALOGUES.idle;
   let matched = ctxDialogues.find(d => pt.trait.includes(d[0]) || d[0]==='勤奋'&&pt.trait.includes('勤奋'));
   if (!matched) matched = ctxDialogues[Math.floor(Math.random() * ctxDialogues.length)];
   const msgs = matched[1];
   const msg = msgs[Math.floor(Math.random() * msgs.length)];
-  const bubble = document.getElementById('petDialogueBubble');
-  if (bubble) {
-    bubble.textContent = msg;
-    bubble.style.display = 'block';
+  // 窝里气泡
+  const houseBubble = document.getElementById('petDialogueBubble');
+  if (houseBubble) {
+    const old = houseBubble.querySelector('.pet-dialogue');
+    if (old) old.remove();
+    const div = document.createElement('div');
+    div.className = 'pet-dialogue';
+    div.textContent = msg;
+    houseBubble.appendChild(div);
     clearTimeout(pet._talkTimer);
-    pet._talkTimer = setTimeout(() => { bubble.style.display = 'none'; }, 5000);
+    pet._talkTimer = setTimeout(() => { if (div.parentNode) div.remove(); }, 6000);
+  }
+  // 活动区气泡
+  const playBubble = document.getElementById('petPlayBubble');
+  if (playBubble) {
+    const old = playBubble.querySelector('.pet-dialogue');
+    if (old) old.remove();
+    const div = document.createElement('div');
+    div.className = 'pet-dialogue';
+    div.style.fontSize = '10px';
+    div.style.padding = '4px 10px';
+    div.style.position = 'absolute';
+    div.style.left = '0';
+    div.style.top = '0';
+    div.style.transform = 'translate(-30%, 0)';
+    div.textContent = msg;
+    playBubble.appendChild(div);
+    setTimeout(() => { if (div.parentNode) div.remove(); }, 5000);
   }
 }
 
-function petWelcome() {
-  petTalk('welcome');
-}
-
-function petOnComplete() {
-  petTalk('complete');
-}
-
-function petOnIncomplete() {
-  petTalk('incomplete');
-}
-
-function petOnCheckin(passed) {
-  petTalk(passed ? 'checkinPass' : 'checkinFail');
-}
-
-function petIdle() {
-  petTalk('idle');
+function openPetInfo() {
+  const pet = data.pet;
+  if (!pet) return;
+  const pt = PET_TYPES.find(p => p.id === pet.type);
+  if (!pt) return;
+  const adopted = new Date(pet.adoptedDate);
+  const now = new Date();
+  const days = Math.floor((now - adopted) / (1000 * 60 * 60 * 24));
+  const months = Math.floor(days / 30);
+  let stage = '幼崽', stageIcon = '🟢';
+  if (days >= 30) { stage = '成年'; stageIcon = '⭐'; }
+  else if (days >= 15) { stage = '成长中'; stageIcon = '🟡'; }
+  // 在弹窗里画个 CSS 宠物
+  const emojiEl = document.getElementById('petInfoEmoji');
+  if (emojiEl) { emojiEl.innerHTML = buildPetChar('info', 60); applyPetColors(emojiEl, pt, 60, true); }
+  document.getElementById('petInfoName').textContent = pet.name;
+  document.getElementById('petInfoAge').textContent = days;
+  document.getElementById('petInfoMonth').textContent = months;
+  document.getElementById('petInfoStage').textContent = stageIcon;
+  document.getElementById('petInfoAdopted').textContent = `📅 ${pet.adoptedDate} 来到你身边`;
+  const msgs = ['今天也要元气满满！','你是最棒的学习搭子！','每一个努力的日子都闪闪发光 ✨','累了就摸摸我的头吧～','我们一起成长！'];
+  document.getElementById('petInfoSaying').textContent = msgs[Math.floor(Math.random() * msgs.length)];
+  document.getElementById('petInfoModal').classList.add('show');
 }
 
 function renderPet() {
+  const house = document.getElementById('petHouse');
+  const playArea = document.getElementById('petPlayArea');
   if (!data.pet) {
-    document.getElementById('petCard').style.display = 'none';
+    if (house) house.style.display = 'none';
+    if (playArea) playArea.style.display = 'none';
     return;
   }
-  document.getElementById('petCard').style.display = '';
+  if (house) house.style.display = '';
+  if (playArea) playArea.style.display = '';
   const pt = PET_TYPES.find(p => p.id === data.pet.type);
   if (!pt) return;
-  // 计算成长阶段
   const adopted = new Date(data.pet.adoptedDate);
-  const now = new Date();
-  const daysSince = Math.floor((now - adopted) / (1000 * 60 * 60 * 24));
-  let stage = 'baby', stageLabel = '幼崽', stageEmoji = pt.emoji;
-  if (daysSince >= 30) { stage = 'adult'; stageLabel = '成年'; stageEmoji = pt.stage3 || pt.emoji; }
-  else if (daysSince >= 15) { stage = 'young'; stageLabel = '成长'; }
-  // 检查今天是否有完成的打卡（加速成长逻辑）
-  const today = getDateStr();
-  const hasPassedCheckin = Object.values(data.checkins).some(records => {
-    const todayRec = records[today];
-    return todayRec && todayRec.approved === true;
+  const daysSince = Math.floor((new Date() - adopted) / (1000 * 60 * 60 * 24));
+  const size = daysSince < 15 ? 28 : daysSince >= 30 ? 38 : 34;
+  // 小窝里的宠物
+  const hc = document.getElementById('petHouseChar');
+  if (hc) { hc.innerHTML = buildPetChar('house', size); hc.classList.remove('pet-walk', 'pet-sleep'); applyPetColors(hc, pt, size, true); }
+  document.getElementById('petHouseName').textContent = data.pet.name;
+  // 活动区宠物
+  const pc = document.getElementById('petPlayChar');
+  if (pc) { pc.innerHTML = buildPetChar('play', 34); pc.classList.remove('pet-sleep'); applyPetColors(pc, pt, 34, true); }
+  startPetActivity();
+  startEncouragementTimer();
+}
+
+let petActivityTimer = null, petWalkTimer = null;
+function startPetActivity() {
+  const playChar = document.getElementById('petPlayChar');
+  const zzz = document.getElementById('petPlayZzz');
+  if (!playChar) return;
+  clearInterval(petActivityTimer); clearTimeout(petWalkTimer);
+  const hour = new Date().getHours();
+  if (hour >= 12 && hour < 13) {
+    if (zzz) zzz.style.display = 'block';
+    playChar.classList.add('pet-sleep');
+    playChar.classList.remove('pet-walk');
+    playChar.style.transition = 'left 0.6s ease';
+    playChar.style.left = '35%';
+  } else {
+    if (zzz) zzz.style.display = 'none';
+    playChar.classList.remove('pet-sleep');
+    playChar.classList.add('pet-walk');
+    petWalkCycle(playChar);
+    petActivityTimer = setInterval(() => petWalkCycle(playChar), 14000);
+  }
+}
+
+function petWalkCycle(el) {
+  const area = document.getElementById('petPlayArea');
+  if (!area || !el) return;
+  const areaW = area.offsetWidth || 300;
+  if (el.classList.contains('pet-sleep')) return;
+  el.style.transition = 'left 0s';
+  el.style.left = '-70px';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      el.style.transition = 'left 7s ease-in-out';
+      el.style.left = (areaW - 90) + 'px';
+    });
   });
-  const doc = document.getElementById('petCard');
-  doc.className = `stat-card pet-card pet-${stage}`;
-  document.getElementById('petEmoji').textContent = stageEmoji;
-  document.getElementById('petCardLabel').textContent = data.pet.name;
-  const badge = document.getElementById('petStageBadge');
-  badge.textContent = stageLabel;
-  badge.className = `pet-stage-badge ${stage}`;
-  data.pet._lastSeenToday = today;
+  clearTimeout(petWalkTimer);
+  petWalkTimer = setTimeout(() => {
+    if (el.classList.contains('pet-sleep')) return;
+    el.style.transition = 'left 7s ease-in-out';
+    el.style.left = '-70px';
+    // 走到右边时说一句话
+    petSayInPlayArea();
+  }, 7200);
+}
+
+function petSayInPlayArea() {
+  if (!data.pet) return;
+  const pt = PET_TYPES.find(p => p.id === data.pet.type);
+  if (!pt) return;
+  const msgs = [
+    '走一走，学一学～','今天也是元气满满的一天！','加油加油！','累了就歇会儿吧～',
+    '我在陪你呢！','学习使我快乐！','你是最棒的！','这个知识点记住了吗？',
+    '喝口水吧～','别太累哦～','冲冲冲！','一步一个脚印！',
+  ];
+  const msg = msgs[Math.floor(Math.random() * msgs.length)];
+  const bubble = document.getElementById('petPlayBubble');
+  if (bubble) {
+    const old = bubble.querySelector('.pet-dialogue');
+    if (old) old.remove();
+    const div = document.createElement('div');
+    div.className = 'pet-dialogue';
+    div.style.fontSize = '10px';
+    div.style.padding = '4px 10px';
+    div.style.position = 'absolute';
+    div.style.left = '0';
+    div.style.top = '0';
+    div.style.transform = 'translate(-30%, 0)';
+    div.textContent = msg;
+    bubble.appendChild(div);
+    setTimeout(() => { if (div.parentNode) div.remove(); }, 4000);
+  }
+}
+
+// 每3分钟随机说话
+let encouragementTimer = null;
+function startEncouragementTimer() {
+  if (encouragementTimer) clearInterval(encouragementTimer);
+  encouragementTimer = setInterval(() => {
+    if (!data.pet) return;
+    petTalk('idle');
+  }, 3 * 60 * 1000);
+}
+
+function petWelcome() { petTalk('welcome'); }
+function petOnComplete() { petTalk('complete'); }
+function petOnIncomplete() { petTalk('incomplete'); }
+function petOnCheckin(passed) { petTalk(passed ? 'checkinPass' : 'checkinFail'); }
+function petIdle() { petTalk('idle'); }
+
+// 每分钟检查午休状态切换
+let petLastKnownHour = -1;
+function checkPetNoonState() {
+  if (!data.pet) return;
+  const h = new Date().getHours();
+  if (h !== petLastKnownHour && (h === 12 || h === 13 || petLastKnownHour === 12)) {
+    petLastKnownHour = h;
+    startPetActivity();
+  } else { petLastKnownHour = h; }
 }
 
 function selectPet(type) {
@@ -789,7 +1023,7 @@ openGate = function() {
 };
 
 // ==================== 初始化 ====================
-function initApp(){initFixedCourses();checkStreak();checkOverdue();navigateTo('dashboard');updateCountdown();updateScheduleUI();renderPet();setInterval(updateCountdown,1000);setInterval(checkOverdueAuto,60000);setInterval(updateScheduleUI,60000);updateGreeting();}
+function initApp(){initFixedCourses();checkStreak();checkOverdue();navigateTo('dashboard');updateCountdown();updateScheduleUI();renderPet();setInterval(updateCountdown,1000);setInterval(checkOverdueAuto,60000);setInterval(updateScheduleUI,60000);setInterval(updateGreeting,60000);setInterval(checkPetNoonState,60000);updateGreeting();}
 function updateGreeting(){const h=new Date().getHours();let e,t;if(h<6){e='🌙';t='夜深了，注意休息～';}else if(h<8){e='🌅';t='清晨好！今天加油！';}else if(h<12){e='☀️';t='上午好！精力充沛！';}else if(h<14){e='🍱';t='中午好！记得午休～';}else if(h<18){e='📖';t='下午好！继续加油！';}else if(h<21){e='🌆';t='晚上好！温故知新～';}else{e='🌛';t='快到总结时间了！';}document.getElementById('greetingEmoji').textContent=e;document.getElementById('greetingText').textContent=t;}
 function checkStreak(){const today=getDateStr();if(!data.activeDates)data.activeDates=[];if(!data.activeDates.includes(today))data.activeDates.push(today);if(data.lastActiveDate===today)return;if(data.lastActiveDate===getDateStr(-1))data.streak+=1;else if(data.lastActiveDate!==today)data.streak=1;data.lastActiveDate=today;saveData(data);}
 function checkOverdue(){const yesterday=getDateStr(-1);data.courses.forEach(c=>{const s=getSummary(c.id,yesterday);if(!s||!s.text){if(!data.overdueCourses[c.id])data.overdueCourses[c.id]=0;data.overdueCourses[c.id]+=Math.ceil(c.dailyLoad*0.5);}});saveData(data);}
@@ -1068,6 +1302,8 @@ function renderModuleDetail(){const c=getCurrentCourse(),m=getCurrentModule();if
 function openModal(id){document.getElementById(id).classList.add('show');}
 function closeModal(id){document.getElementById(id).classList.remove('show');}
 document.querySelectorAll('.modal-overlay').forEach(o=>{o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});});
+document.querySelectorAll('.pet-info-modal,.pet-select-overlay').forEach(o=>{o.addEventListener('click',function(e){if(e.target===this)this.classList.add('hidden')||this.classList.remove('show');});});
+document.getElementById('petInfoModal').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
 document.addEventListener('keydown',function(e){if(e.key==='Escape')document.querySelectorAll('.modal-overlay.show').forEach(o=>o.classList.remove('show'));});
 let toastTimer;function showToast(msg,type){const ex=document.querySelector('.toast');if(ex)ex.remove();clearTimeout(toastTimer);const t=document.createElement('div');t.className=`toast ${type}`;t.textContent=msg;document.body.appendChild(t);toastTimer=setTimeout(()=>t.remove(),2500);}
 
