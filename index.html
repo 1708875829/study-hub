@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>🌸 我的学习小窝</title>
+<style>
+  :root {
+    --pink:#ffb3c6;--pink-light:#ffe0e8;--pink-dark:#ff8fa3;
+    --purple:#c8b6ff;--purple-light:#e8dfff;--purple-dark:#b197fc;
+    --mint:#b8f0e0;--mint-dark:#7ed8bf;
+    --yellow:#fff3bf;--yellow-dark:#ffe066;
+    --text:#5c4b51;--text-light:#8a7b80;
+    --shadow:0 4px 20px rgba(255,179,198,0.25);
+    --shadow-lg:0 8px 40px rgba(200,180,220,0.3);
+    --radius:20px;--radius-sm:12px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+    background:linear-gradient(135deg,#fff5f7 0%,#f8f0ff 30%,#f0f8ff 60%,#fff5f7 100%);
+    background-attachment:fixed;min-height:100vh;color:var(--text);
+    position:relative;overflow-x:hidden;
+  }
+  body::before{content:'';position:fixed;top:-200px;right:-200px;width:500px;height:500px;background:radial-gradient(circle,rgba(255,179,198,0.2) 0%,transparent 70%);border-radius:50%;pointer-events:none;z-index:0;}
+  body::after{content:'';position:fixed;bottom:-150px;left:-150px;width:400px;height:400px;background:radial-gradient(circle,rgba(200,182,255,0.2) 0%,transparent 70%);border-radius:50%;pointer-events:none;z-index:0;}
+  .floating-particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+  .particle{position:absolute;font-size:24px;animation:floatUp 8s ease-in infinite;opacity:0.4;}
+  @keyframes floatUp{0%{transform:translateY(100vh) rotate(0deg) scale(0);opacity:0;}10%{opacity:0.5;}50%{opacity:0.3;}90%{opacity:0.5;}100%{transform:translateY(-10vh) rotate(360deg) scale(1);opacity:0;}}
+
+  /* 密码门 & 夜间锁 */
+  .gate-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#ffd4df 0%,#e8dfff 40%,#d4f0ff 70%,#ffe0e8 100%);display:flex;align-items:center;justify-content:center;z-index:1000;transition:opacity 0.5s,visibility 0.5s;}
+  .gate-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+  .gate-card{background:white;padding:50px 40px;border-radius:30px;box-shadow:var(--shadow-lg);text-align:center;max-width:420px;width:90%;position:relative;}
+  .gate-icon{font-size:70px;animation:bounce 2s ease-in-out infinite;}
+  @keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-15px);}}
+  .gate-title{font-size:28px;font-weight:700;background:linear-gradient(135deg,#ff8fa3,#b197fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:10px 0;}
+  .gate-subtitle{color:var(--text-light);font-size:15px;margin-bottom:25px;}
+  .gate-input{width:100%;padding:14px 20px;border:2px solid var(--pink-light);border-radius:50px;font-size:16px;text-align:center;outline:none;transition:border-color 0.3s;background:#fffafb;}
+  .gate-input:focus{border-color:var(--pink-dark);}
+  .gate-btn{width:100%;margin-top:15px;padding:14px;border:none;border-radius:50px;background:linear-gradient(135deg,#ffb3c6,#c8b6ff);color:white;font-size:17px;font-weight:600;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;}
+  .gate-btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(200,180,220,0.4);}
+  .gate-error{color:#ff6b6b;font-size:13px;margin-top:10px;min-height:20px;}
+  .gate-hint{color:var(--text-light);font-size:12px;margin-top:15px;}
+
+  .night-lock{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);display:flex;align-items:center;justify-content:center;z-index:999;transition:opacity 0.5s,visibility 0.5s;}
+  .night-lock.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+  .night-card{text-align:center;}
+  .night-moon{font-size:80px;animation:float 3s ease-in-out infinite;}
+  @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-20px);}}
+  .night-title{font-size:28px;font-weight:700;color:#e8dfff;margin:15px 0;}
+  .night-time{font-size:48px;font-weight:800;color:#ffd4df;font-variant-numeric:tabular-nums;font-family:'SF Mono','Cascadia Code','Consolas',monospace;}
+  .night-subtitle{color:#8a8ab0;font-size:14px;margin-top:10px;}
+  .night-stars{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;}
+  .secret-moon{position:fixed;bottom:18px;right:22px;font-size:11px;opacity:0.06;cursor:default;z-index:1001;transition:opacity 0.8s;user-select:none;-webkit-user-select:none;}
+  .secret-moon:hover{opacity:0.10;}
+  .secret-moon.glimmer{opacity:0.35;transition:opacity 0.2s;}
+  .star{position:absolute;font-size:14px;animation:twinkle 2s ease-in-out infinite;opacity:0.5;}
+  @keyframes twinkle{0%,100%{opacity:0.3;transform:scale(1);}50%{opacity:0.8;transform:scale(1.3);}}
+
+  /* 主布局 — 横屏优化 */
+  .app{position:relative;z-index:1;max-width:1300px;margin:0 auto;padding:15px 20px;}
+  .header{background:white;border-radius:var(--radius);padding:16px 24px;margin-bottom:14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:15px;flex-wrap:wrap;position:relative;overflow:hidden;}
+  .header::after{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;background:radial-gradient(circle,rgba(255,179,198,0.3) 0%,transparent 70%);border-radius:50%;}
+  .greeting{position:relative;z-index:1;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .greeting-emoji{font-size:36px;display:inline-block;animation:wave 2s ease-in-out infinite;}
+  @keyframes wave{0%,100%{transform:rotate(0deg);}25%{transform:rotate(15deg);}75%{transform:rotate(-15deg);}}
+  .greeting-text{font-size:20px;font-weight:700;color:var(--text);}
+  .greeting-date{font-size:12px;color:var(--text-light);}
+  .school-chips{position:relative;z-index:1;display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex:1;min-width:0;}
+  .school-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:50px;font-size:12px;font-weight:600;background:linear-gradient(135deg,#fff8e1,#fffde8);border:1px solid #ffd700;color:#8d6e00;cursor:pointer;white-space:nowrap;transition:all 0.3s;}
+  .school-chip:hover{transform:translateY(-1px);box-shadow:0 2px 10px rgba(255,215,0,0.25);}
+  .school-chip-add{background:transparent;border:1px dashed #ccc;color:var(--text-light);}
+  .school-chip-add:hover{border-color:var(--pink);color:var(--pink-dark);}
+  .header-actions{position:relative;z-index:1;display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0;}
+
+  .btn{padding:8px 16px;border:none;border-radius:50px;font-size:13px;font-weight:600;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;white-space:nowrap;}
+  .btn:hover{transform:translateY(-2px);}
+  .btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+  .btn:disabled:hover{transform:none;box-shadow:none;}
+  .btn-outline{background:white;border:2px solid var(--pink-light);color:var(--pink-dark);}
+  .btn-outline:hover{box-shadow:0 4px 15px rgba(255,179,198,0.3);}
+  .btn-outline:disabled:hover{box-shadow:none;}
+  .btn-primary{background:linear-gradient(135deg,#ffb3c6,#c8b6ff);color:white;}
+  .btn-primary:hover{box-shadow:0 6px 20px rgba(200,180,220,0.4);}
+  .btn-danger{background:linear-gradient(135deg,#ff8fa3,#ff6b6b);color:white;font-size:11px;padding:6px 12px;}
+  .btn-sm{padding:5px 12px;font-size:11px;}
+  .btn-enter{background:linear-gradient(135deg,#b197fc,#7ed8bf);color:white;font-size:12px;padding:6px 14px;}
+  .btn-enter:hover{box-shadow:0 6px 20px rgba(180,150,200,0.45);}
+
+  .section{background:white;border-radius:var(--radius);padding:18px 22px;margin-bottom:14px;box-shadow:var(--shadow);transition:transform 0.2s;}
+  .section:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);}
+  .section-header{display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-bottom:12px;border-bottom:2px dashed var(--pink-light);flex-wrap:wrap;}
+  .section-icon{font-size:24px;}
+  .section-title{font-size:17px;font-weight:700;color:var(--text);}
+  .section-badge{font-size:11px;padding:3px 10px;background:var(--purple-light);color:var(--purple-dark);border-radius:50px;font-weight:600;}
+
+  .breadcrumb{display:flex;align-items:center;gap:6px;padding:10px 16px;background:white;border-radius:var(--radius-sm);margin-bottom:12px;box-shadow:var(--shadow);font-size:13px;font-weight:600;}
+  .breadcrumb a{color:var(--pink-dark);cursor:pointer;text-decoration:none;}
+  .breadcrumb a:hover{text-decoration:underline;}
+  .breadcrumb .sep{color:var(--text-light);}
+
+  .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:14px;}
+  .stat-card{background:white;border-radius:var(--radius-sm);padding:14px 10px;box-shadow:var(--shadow);text-align:center;position:relative;overflow:hidden;}
+  .stat-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;border-radius:4px 0 0 4px;}
+  .stat-card.pink::before{background:var(--pink);}.stat-card.purple::before{background:var(--purple);}
+  .stat-card.mint::before{background:var(--mint-dark);}.stat-card.yellow::before{background:var(--yellow-dark);}
+  .stat-card.green::before{background:#81c784;}
+  .stat-icon{font-size:24px;}.stat-value{font-size:24px;font-weight:800;color:var(--text);}.stat-label{font-size:11px;color:var(--text-light);margin-top:2px;}
+
+  /* 双栏布局 */
+  .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:900px){.dash-grid{grid-template-columns:1fr;}}
+  .dash-full{grid-column:1/-1;}
+
+  .plan-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;}
+  .plan-card{background:linear-gradient(135deg,#fffafb,#fdf5ff);border-radius:var(--radius-sm);padding:16px;border:2px solid transparent;transition:all 0.3s;position:relative;}
+  .plan-card:hover{border-color:var(--pink-light);}
+  .plan-card.overdue{border-color:#ffb3b3;background:linear-gradient(135deg,#fff5f5,#fff0f0);}
+  .plan-card.fixed{border-color:#ffd700;background:linear-gradient(135deg,#fffef5,#fffde8);}
+  .plan-card.fixed::before{content:'⭐ 固定';position:absolute;top:-8px;right:8px;background:linear-gradient(135deg,#ffd700,#ffb347);color:white;font-size:9px;font-weight:700;padding:2px 8px;border-radius:50px;z-index:2;}
+  .plan-card-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .plan-course-icon{font-size:28px;}
+  .plan-course-name{font-weight:700;font-size:15px;flex:1;}
+  .plan-progress-bar{height:5px;background:var(--pink-light);border-radius:3px;margin:8px 0;overflow:hidden;}
+  .plan-progress-fill{height:100%;background:linear-gradient(90deg,#ffb3c6,#c8b6ff);border-radius:3px;transition:width 0.5s ease;}
+  .plan-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--text-light);}
+  .plan-actions{display:flex;gap:4px;margin-top:10px;flex-wrap:wrap;}
+  .plan-summary-text{font-size:11px;color:var(--text-light);margin-top:6px;line-height:1.5;max-height:45px;overflow-y:auto;background:white;padding:6px 10px;border-radius:8px;}
+  .checkin-status{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:50px;}
+  .checkin-status.ok{background:#e8f5e9;color:#2e7d32;}
+  .checkin-status.fail{background:#ffebee;color:#c62828;}
+  .checkin-status.none{background:#f5f5f5;color:#999;}
+
+  .schedule-list{display:flex;flex-direction:column;gap:8px;}
+  .schedule-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--radius-sm);background:#fffafb;transition:all 0.3s;border-left:4px solid var(--pink-light);}
+  .schedule-item:hover{background:#fff5f7;}
+  .schedule-item.done{border-left-color:var(--mint-dark);background:#f8fffc;}
+  .schedule-item.past{opacity:0.5;}
+  .schedule-time{font-weight:700;font-size:14px;min-width:55px;color:var(--pink-dark);}
+  .schedule-item.done .schedule-time{color:var(--mint-dark);}
+  .schedule-content{flex:1;}.schedule-title{font-weight:600;font-size:14px;}.schedule-desc{font-size:12px;color:var(--text-light);}
+  .schedule-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--pink-light);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s;font-size:11px;flex-shrink:0;}
+  .schedule-check:hover{border-color:var(--pink-dark);}
+  .schedule-check.checked{background:var(--mint-dark);border-color:var(--mint-dark);color:white;}
+  .info-banner{padding:10px 14px;border-radius:var(--radius-sm);margin-bottom:10px;font-size:12px;font-weight:600;}
+  .info-banner.locked{background:#fff3e0;color:#e65100;border:1px solid #ffcc80;}
+
+  /* 弹窗 */
+  .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.3);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:500;opacity:0;visibility:hidden;transition:all 0.3s;}
+  .modal-overlay.show{opacity:1;visibility:visible;}
+  .modal{background:white;border-radius:var(--radius);padding:25px;max-width:520px;width:90%;box-shadow:var(--shadow-lg);max-height:85vh;overflow-y:auto;}
+  .modal-wide{max-width:650px;}
+  .modal-title{font-size:18px;font-weight:700;margin-bottom:16px;}
+  .form-group{margin-bottom:12px;}
+  .form-label{display:block;font-size:12px;font-weight:600;color:var(--text-light);margin-bottom:4px;}
+  .form-input,.form-select,.form-textarea{width:100%;padding:10px 14px;border:2px solid #eee;border-radius:var(--radius-sm);font-size:14px;outline:none;transition:border-color 0.3s;font-family:inherit;}
+  .form-textarea{min-height:80px;resize:vertical;}
+  .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--pink);}
+  .form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
+
+  .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:50px;background:white;box-shadow:var(--shadow-lg);font-weight:600;z-index:2000;animation:slideDown 0.4s ease;max-width:90vw;text-align:center;font-size:14px;}
+  @keyframes slideDown{from{transform:translateX(-50%) translateY(-100px);opacity:0;}to{transform:translateX(-50%) translateY(0);opacity:1;}}
+  .toast.success{border:2px solid var(--mint-dark);color:#2d8a6e;}
+  .toast.warning{border:2px solid var(--yellow-dark);color:#b8860b;}
+  .toast.error{border:2px solid #ff6b6b;color:#c0392b;}
+
+  .exam-subject-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+  .exam-subject-tab{padding:6px 14px;border-radius:50px;font-size:12px;font-weight:600;cursor:pointer;border:2px solid var(--pink-light);background:white;color:var(--pink-dark);transition:all 0.3s;}
+  .exam-subject-tab:hover{border-color:var(--pink-dark);}
+  .exam-subject-tab.active{background:linear-gradient(135deg,#ffb3c6,#c8b6ff);color:white;border-color:transparent;}
+  .exam-score-card{background:#fffafb;border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:6px;display:flex;align-items:center;gap:10px;border-left:3px solid var(--purple-light);transition:all 0.3s;}
+  .exam-score-card:hover{background:#fff5f7;}
+  .exam-score-value{font-size:22px;font-weight:800;color:var(--purple-dark);min-width:50px;text-align:center;}
+  .exam-score-meta{flex:1;}.exam-score-date{font-size:12px;color:var(--text-light);}.exam-score-note{font-size:11px;color:var(--text);margin-top:1px;}
+  .exam-trend{display:flex;align-items:flex-end;gap:3px;height:60px;padding:5px 0;}
+  .exam-trend-bar{flex:1;border-radius:4px 4px 0 0;min-width:12px;transition:height 0.5s;position:relative;}
+
+  .trend-link{color:var(--purple-dark);cursor:pointer;font-size:13px;font-weight:600;text-decoration:underline dashed;margin-left:auto;}
+  .trend-link:hover{color:var(--pink-dark);}
+
+  /* 模块卡片 */
+  .module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;}
+  .module-card{border-radius:var(--radius-sm);padding:18px 14px;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden;min-height:100px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;}
+  .module-card:hover{transform:translateY(-3px);}
+  .module-card .module-icon{font-size:32px;margin-bottom:6px;}
+  .module-card .module-name{font-weight:700;font-size:14px;margin-bottom:3px;}
+  .module-card .module-count{font-size:11px;opacity:0.7;}
+  .module-card .module-delete{position:absolute;top:6px;right:6px;background:rgba(255,255,255,0.7);border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:10px;opacity:0;transition:opacity 0.3s;}
+  .module-card:hover .module-delete{opacity:1;}
+
+  .kp-list{display:flex;flex-direction:column;gap:10px;}
+  .kp-card{border-radius:var(--radius-sm);padding:14px 18px;transition:all 0.3s;position:relative;}
+  .kp-card:hover{transform:translateX(3px);}
+  .kp-card .kp-title{font-weight:700;font-size:14px;margin-bottom:6px;}
+  .kp-card .kp-content{font-size:13px;line-height:1.6;color:var(--text);white-space:pre-wrap;}
+  .kp-card .kp-actions{position:absolute;top:6px;right:8px;display:flex;gap:3px;opacity:0;transition:opacity 0.3s;}
+  .kp-card:hover .kp-actions{opacity:1;}
+  .kp-card .kp-time{font-size:10px;color:var(--text-light);margin-top:4px;}
+
+  .view-container{display:none;}
+  .view-container.active{display:block;}
+
+  .deadline-banner{background:linear-gradient(135deg,#fff3bf,#ffe0e8);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:10px;font-weight:600;font-size:13px;flex-wrap:wrap;}
+  .deadline-banner.urgent{background:linear-gradient(135deg,#ffe0e0,#ffcccc);animation:pulse 2s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,107,107,0.3);}50%{box-shadow:0 0 0 12px rgba(255,107,107,0);}}
+  .countdown{font-size:18px;font-weight:800;color:#e03131;}
+
+  .tag{display:inline-block;padding:2px 8px;border-radius:50px;font-size:10px;font-weight:600;}
+  .tag-pink{background:var(--pink-light);color:#c0395b;}.tag-purple{background:var(--purple-light);color:#6c5ce7;}
+  .tag-mint{background:var(--mint);color:#2d8a6e;}.tag-yellow{background:var(--yellow);color:#b8860b;}
+
+  .empty-state{text-align:center;padding:30px;color:var(--text-light);}
+  .empty-state-icon{font-size:40px;}.empty-state-text{font-size:14px;margin-top:8px;}
+
+  .course-detail-header{background:white;border-radius:var(--radius);padding:18px 22px;margin-bottom:14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .course-detail-header .cd-icon{font-size:44px;}
+  .course-detail-header .cd-info{flex:1;}
+  .course-detail-header .cd-name{font-size:20px;font-weight:700;}
+
+  /* 打卡区 */
+  .checkin-section{border:2px dashed var(--mint-dark);background:#f8fffc;}
+  .checkin-section .section-header{border-bottom-color:var(--mint-dark);}
+  .checkin-upload-area{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;}
+  .checkin-img-preview{display:inline-block;position:relative;margin:4px;}
+  .checkin-img-preview img{width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid #eee;}
+  .checkin-img-preview .remove-img{position:absolute;top:-6px;right:-6px;background:#ff6b6b;color:white;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;}
+  .checkin-record{background:white;border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:8px;border-left:4px solid #eee;}
+  .checkin-record.pass{border-left-color:var(--mint-dark);}
+  .checkin-record.reject{border-left-color:#ff6b6b;}
+  .checkin-date-header{font-weight:700;font-size:13px;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+
+  .streak-cal-cell{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;background:#fafafa;position:relative;}
+  .streak-cal-cell .day-num{font-weight:600;}
+  .streak-cal-cell .day-label{font-size:10px;color:#999;}
+  .streak-cal-dot{width:8px;height:8px;border-radius:50%;background:#ff6b6b;position:absolute;bottom:4px;}
+  .streak-cal-head{font-weight:700;font-size:11px;color:var(--text-light);padding:4px 0;}
+
+  @media(max-width:600px){.app{padding:8px;}.header{padding:12px 16px;}.greeting-text{font-size:17px;}.plan-grid,.module-grid{grid-template-columns:1fr;}.stats-row{grid-template-columns:repeat(3,1fr);}.dash-grid{grid-template-columns:1fr;}.gate-card{padding:30px 25px;}}
+  ::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--pink-light);border-radius:3px;}::-webkit-scrollbar-thumb:hover{background:var(--pink);}
+</style>
+</head>
+<body>
+
+<div class="floating-particles" id="particles"></div>
+
+<div class="night-lock hidden" id="nightLock">
+  <div class="night-stars" id="nightStars"></div>
+  <div class="night-card">
+    <div class="night-moon">🌙</div><div class="night-title">学习小窝休息中…</div>
+    <div class="night-time" id="nightTime">00:00</div>
+    <div class="night-subtitle">💤 深夜是身体修复的黄金时间<br>早上 8:00 以后再来学习吧～</div>
+    <div style="margin-top:20px;font-size:13px;color:#8a8ab0;" id="nightCountdown"></div>
+  </div>
+  <span class="secret-moon" id="secretMoon" title="">🌙</span>
+</div>
+
+<div class="gate-overlay" id="gate">
+  <div class="gate-card">
+    <div class="gate-icon">🔐</div><div class="gate-title" id="gateTitle">欢迎来到学习小窝</div>
+    <div class="gate-subtitle" id="gateSubtitle">请输入密码进入你的专属学习空间 ✨</div>
+    <input type="password" class="gate-input" id="gateInput" placeholder="输入密码..." maxlength="20">
+    <button class="gate-btn" id="gateBtn" onclick="handleGate()">🌸 进入</button>
+    <div class="gate-error" id="gateError"></div><div class="gate-hint" id="gateHint"></div>
+  </div>
+</div>
+
+<div class="app" id="app">
+  <div class="breadcrumb" id="breadcrumb" style="display:none;">
+    <a onclick="navigateTo('dashboard')">🏠 首页</a>
+    <span class="sep" id="bcSep1" style="display:none;">›</span>
+    <a id="bcLink" style="display:none;" onclick="goBackToCourse()"></a>
+    <span class="sep" id="bcSep2" style="display:none;">›</span><span id="bcCurrent" style="color:var(--text);"></span>
+  </div>
+
+  <!-- ===== DASHBOARD ===== -->
+  <div class="view-container active" id="view-dashboard">
+    <div class="header">
+      <div class="greeting">
+        <span class="greeting-emoji" id="greetingEmoji">🌸</span>
+        <div><div class="greeting-text" id="greetingText"></div><div class="greeting-date" id="greetingDate"></div></div>
+      </div>
+      <div class="school-chips" id="schoolChips"></div>
+      <div class="header-actions">
+        <button class="btn btn-outline btn-sm" onclick="openAddCourseModal()">+ 课程</button>
+        <button class="btn btn-outline btn-sm" id="btnAddSchedule" onclick="openAddScheduleModal()">+ 安排</button>
+        <button class="btn btn-outline btn-sm" onclick="changePassword()">🔑</button>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card pink"><div class="stat-icon">📚</div><div class="stat-value" id="statCourses">0</div><div class="stat-label">课程</div></div>
+      <div class="stat-card purple"><div class="stat-icon">✅</div><div class="stat-value" id="statDone">0</div><div class="stat-label">今日完成</div></div>
+      <div class="stat-card mint"><div class="stat-icon">📝</div><div class="stat-value" id="statSummaries">0</div><div class="stat-label">总结</div></div>
+      <div class="stat-card green"><div class="stat-icon">📸</div><div class="stat-value" id="statCheckins">0</div><div class="stat-label">今日打卡</div></div>
+      <div class="stat-card yellow" style="cursor:pointer;" onclick="openStreakCalendar()"><div class="stat-icon">🔥</div><div class="stat-value" id="statStreak">0</div><div class="stat-label">连续天</div></div>
+    </div>
+
+    <div class="deadline-banner" id="deadlineBanner"><span>⏰</span><span>距离今晚总结截止（23:00）：</span><span class="countdown" id="countdown">--:--:--</span></div>
+
+    <div class="dash-grid">
+      <!-- 左列：日程 + 真题 -->
+      <div>
+        <div class="section">
+          <div class="section-header"><span class="section-icon">📅</span><span class="section-title">今日安排</span><span class="section-badge" id="scheduleBadge">0项</span><button class="btn btn-outline btn-sm" style="margin-left:auto" onclick="resetDailySchedule()">🔄</button></div>
+          <div class="info-banner locked" id="scheduleLockBanner" style="display:none;"></div>
+          <div class="schedule-list" id="scheduleList"><div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text" id="scheduleEmptyText">还没有添加今日安排哦～</div></div></div>
+        </div>
+
+        <div class="section">
+          <div class="section-header"><span class="section-icon">📝</span><span class="section-title">真题考试</span><button class="btn btn-outline btn-sm" onclick="openExamSubjectModal()">+ 科目</button><button class="btn btn-outline btn-sm" style="margin-left:4px" onclick="openExamPaperModal()">+ 试卷</button><button class="btn btn-primary btn-sm" style="margin-left:4px" onclick="openExamScoreModal()">+ 成绩</button><span class="trend-link" onclick="openTrendModal()">📊 趋势 →</span></div>
+          <div class="exam-subject-tabs" id="examTabs"></div>
+          <div id="examScoreListShort" style="max-height:200px;overflow-y:auto;"><div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-text">还没有真题记录～</div></div></div>
+        </div>
+      </div>
+
+      <!-- 右列：课程 -->
+      <div>
+        <div class="section">
+          <div class="section-header"><span class="section-icon">🎯</span><span class="section-title">学习课程</span><span class="section-badge" id="planBadge">0门</span></div>
+          <div id="deadlineWarning" style="display:none;padding:10px 14px;background:#fff0f0;border-radius:10px;margin-bottom:10px;color:#c0392b;font-weight:600;font-size:12px;">⚠️ 昨天有 <span id="overdueCount">0</span> 门课程未在23:00前完成总结，今日学习量已自动增加！</div>
+          <div class="plan-grid" id="planGrid"><div class="empty-state"><div class="empty-state-icon">📖</div><div class="empty-state-text">还没有添加课程哦～</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== COURSE DETAIL ===== -->
+  <div class="view-container" id="view-courseDetail">
+    <div class="course-detail-header" id="courseDetailHeader"></div>
+    <div class="dash-grid">
+      <div>
+        <div class="section">
+          <div class="section-header"><span class="section-icon">📦</span><span class="section-title">知识模块</span><span class="section-badge" id="moduleBadge">0个</span><button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="openModuleModal()">+ 模块</button></div>
+          <div class="module-grid" id="moduleGrid"><div class="empty-state"><div class="empty-state-icon">🗂️</div><div class="empty-state-text">还没有模块～</div></div></div>
+        </div>
+      </div>
+      <div>
+        <div class="section checkin-section">
+          <div class="section-header"><span class="section-icon">📸</span><span class="section-title">每日打卡</span><span style="font-size:12px;color:var(--text-light);">上传学习截图 · 系统自动判定</span></div>
+          <div id="checkinArea"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODULE DETAIL ===== -->
+  <div class="view-container" id="view-moduleDetail">
+    <div class="course-detail-header" id="moduleDetailHeader"></div>
+    <div class="section" id="moduleKpSection">
+      <div class="section-header"><span class="section-icon">📌</span><span class="section-title">知识点</span><span class="section-badge" id="kpBadge">0条</span><button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="openKpModal()">+ 知识点</button></div>
+      <div class="kp-list" id="kpList"><div class="empty-state"><div class="empty-state-icon">✨</div><div class="empty-state-text">还没有知识点～</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 弹窗 ============ -->
+<div class="modal-overlay" id="courseModal"><div class="modal">
+  <div class="modal-title" id="courseModalTitle">🌸 添加新课程</div><input type="hidden" id="editCourseId">
+  <div class="form-group"><label class="form-label">选择课程</label><select class="form-select" id="coursePreset" onchange="onPresetChange()"><option value="">-- 请选择 --</option><option value="mysql">🗄️ MySQL</option><option value="c">💻 C语言</option><option value="cpp">⚙️ C++</option><option value="java">☕ Java</option><option value="python">🐍 Python</option><option value="javascript">📜 JavaScript</option><option value="go">🔷 Go</option><option value="rust">🦀 Rust</option><option value="algo">🧮 数据结构与算法</option><option value="network">🌐 计算机网络</option><option value="os">🖥️ 操作系统</option><option value="linux">🐧 Linux</option><option value="math">📐 高等数学</option><option value="english">🇬🇧 英语</option><option value="politics">📰 政治</option><option value="custom">✏️ 自定义...</option></select></div>
+  <div class="form-group" id="customNameGroup" style="display:none;"><label class="form-label">课程名称</label><input class="form-input" id="courseName"></div>
+  <div class="form-group" id="iconGroup" style="display:none;"><label class="form-label">图标 emoji</label><input class="form-input" id="courseIcon" maxlength="4"></div>
+  <div class="form-group"><label class="form-label">每日学习量</label><input class="form-input" id="courseDailyLoad" type="number" min="1" value="10"></div>
+  <div class="form-group"><label class="form-label">当前进度</label><input class="form-input" id="courseProgress" type="number" min="0" value="0"></div>
+  <div class="form-group"><label class="form-label">总目标</label><input class="form-input" id="courseGoal" type="number" min="1" value="300"></div>
+  <div class="form-group"><label class="form-label">优先级</label><select class="form-select" id="coursePriority"><option value="high">🔴 高</option><option value="medium" selected>🟡 中</option><option value="low">🟢 低</option></select></div>
+  <div class="form-actions"><button class="btn btn-outline btn-sm" onclick="closeModal('courseModal')">取消</button><button class="btn btn-primary btn-sm" onclick="saveCourse()">💾 保存</button></div>
+</div></div>
+
+<div class="modal-overlay" id="scheduleModal"><div class="modal">
+  <div class="modal-title">⏰ 添加今日安排</div>
+  <div class="form-group"><label class="form-label">时间</label><input class="form-input" id="scheduleTime" type="time" value="09:00" min="08:00"></div>
+  <div class="form-group"><label class="form-label">事项</label><input class="form-input" id="scheduleTitle" placeholder="例如：学习高数第三章"></div>
+  <div class="form-group"><label class="form-label">关联课程</label><select class="form-select" id="scheduleCourse"></select></div>
+  <div class="form-group"><label class="form-label">备注</label><input class="form-input" id="scheduleDesc"></div>
+  <div class="form-actions"><button class="btn btn-outline btn-sm" onclick="closeModal('scheduleModal')">取消</button><button class="btn btn-primary btn-sm" onclick="saveSchedule()">💾 保存</button></div>
+</div></div>
+
+<div class="modal-overlay" id="summaryModal"><div class="modal">
+  <div class="modal-title">📝 撰写今日总结</div><input type="hidden" id="summaryCourseId">
+  <div class="form-group"><label class="form-label">课程：<strong id="summaryCourseLabel"></strong></label></div>
+  <div class="form-group"><label class="form-label">今日学习内容总结</label><textarea class="form-textarea" id="summaryText" rows="4" placeholder="今天学到了什么？"></textarea></div>
+  <div class="form-group"><label class="form-label">今日完成量</label><input class="form-input" id="summaryAmount" type="number" min="0" value="0"></div>
+  <div class="form-actions"><button class="btn btn-outline btn-sm" onclick="closeModal('summaryModal')">取消</button><button class="btn btn-primary btn-sm" onclick="saveSummary()">✅ 提交</button></div>
+</div></div>
+
+<div class="modal-overlay" id="moduleModal"><div class="modal">
+  <div class="modal-title" id="moduleModalTitle">📦 新建模块</div><input type="hidden" id="editModuleId">
+  <div class="form-group"><label class="form-label">模块名称</label><input class="form-input" id="moduleName" placeholder="例如：单词、语法..."></div>
+  <div class="form-actions"><button class="btn btn-outline btn-sm" onclick="closeModal('moduleModal')">取消</button><button class="btn btn-primary btn-sm" onclick="saveModule()">💾 保存</button></div>
+</div></div>
+
+<div class="modal-overlay" id="kpModal"><div class="modal">
+  <div class="modal-title" id="kpModalTitle">✨ 添加知识点</div><input type="hidden" id="editKpId">
+  <div class="form-group"><label class="form-label">标题</label><input class="form-input" id="kpTitle" placeholder="知识点标题"></div>
+  <div class="form-group"><label class="form-label">内容（自由书写）</label><textarea class="form-textarea" id="kpContent" rows="6" placeholder="详细内容..."></textarea></div>
+  <div class="form-actions"><button class="btn btn-outline btn-sm" onclick="closeModal('kpModal')">取消</button><button class="btn btn-primary btn-sm" onclick="saveKp()">💾 保存</button></div>
+</div></div>
+
+<div class="modal-overlay" id="schoolModal"><div class="modal">
+  <div class="modal-title" id="schoolModalTitle">🏫 目标院校</div><input type="hidden" id="editSchoolId">
+  <div class="form-group"><label class="form-label">院校名称</label><input class="form-input" id="schoolName" placeholder="例如：北京大学"></div>
+  <div class="form-group"><label class="form-label">专业</label><input class="form-input" id="schoolMajor" placeholder="例如：计算机科学与技术"></div>
+  <div class="form-group"><label class="form-label">备注</label><input class="form-input" id="schoolNotes" placeholder="分数线、考试科目..."></div>
+  <div class="form-actions"><button class="btn btn-outline btn-sm" onclick="closeModal('schoolModal')">取消</button><button class="btn btn-primary btn-sm" onclick="saveSchool()">💾 保存</button></div>
+</div></div>
+
+<div class="modal-overlay" id="examSubjectModal"><div class="modal">
+  <div class="modal-title">📝 管理真题科目</div>
+  <div class="form-group"><label class="form-label">科目名称</label><input class="form-input" id="examSubjectName" placeholder="例如：英语真题"></div>
+  <div class="form-actions"><button class="btn btn-outline btn-sm" onclick="closeModal('examSubjectModal')">取消</button><button class="btn btn-primary btn-sm" onclick="saveExamSubject()">💾 添加</button></div>
+  <div style="margin-top:16px;border-top:1px dashed #eee;padding-top:12px;"><div class="form-label" style="margin-bottom:8px;">已有科目（点击删除）</div><div id="examSubjectList"></div></div>
+</div></div>
+
+<div class="modal-overlay" id="examPaperModal"><div class="modal">
+  <div class="modal-title" id="examPaperModalTitle">📋 添加试卷</div><input type="hidden" id="editPaperId">
+  <div class="form-group"><label class="form-label">所属科目</label><select class="form-select" id="paperSubject"></select></div>
+  <div class="form-group"><label class="form-label">试卷名称</label><input class="form-input" id="paperName" placeholder="例如：2023年真题"></div>
+  <div class="form-actions"><button class="btn btn-outline btn-sm" onclick="closeModal('examPaperModal')">取消</button><button class="btn btn-primary btn-sm" onclick="savePaper()">💾 保存</button></div>
+</div></div>
+
+<div class="modal-overlay" id="examScoreModal"><div class="modal">
+  <div class="modal-title">📊 记录成绩</div>
+  <div class="form-group"><label class="form-label">试卷</label><select class="form-select" id="examScorePaper"></select></div>
+  <div class="form-group"><label class="form-label">得分</label><input class="form-input" id="examScoreScore" type="number" min="0"></div>
+  <div class="form-group"><label class="form-label">总分</label><input class="form-input" id="examScoreTotal" type="number" min="1" value="100"></div>
+  <div class="form-group"><label class="form-label">日期</label><input class="form-input" id="examScoreDate" type="date"></div>
+  <div class="form-group"><label class="form-label">备注</label><input class="form-input" id="examScoreNote"></div>
+  <div class="form-actions"><button class="btn btn-outline btn-sm" onclick="closeModal('examScoreModal')">取消</button><button class="btn btn-primary btn-sm" onclick="saveExamScore()">💾 保存</button></div>
+</div></div>
+
+<!-- 趋势弹窗 -->
+<div class="modal-overlay" id="trendModal"><div class="modal modal-wide">
+  <div class="modal-title">📊 真题成绩趋势</div>
+  <div class="exam-subject-tabs" id="trendTabs"></div>
+  <div id="trendChart" style="margin-bottom:12px;"></div>
+  <div id="trendList" style="max-height:250px;overflow-y:auto;"></div>
+  <div class="form-actions"><button class="btn btn-outline btn-sm" onclick="closeModal('trendModal')">关闭</button></div>
+</div></div>
+
+<div class="modal-overlay" id="streakModal"><div class="modal modal-wide">
+  <div class="modal-title" style="display:flex;align-items:center;gap:12px;">
+    <button class="btn btn-outline btn-sm" onclick="navigateStreakMonth(-1)">◀</button>
+    <span id="streakMonthTitle" style="flex:1;text-align:center;">🔥 打卡日历</span>
+    <button class="btn btn-outline btn-sm" onclick="navigateStreakMonth(1)">▶</button>
+  </div>
+  <div style="margin-bottom:12px;font-size:13px;color:var(--text-light);text-align:center;">📅 <span id="streakDateRange"></span> · 累计活跃 <strong id="streakActiveCount">0</strong> 天 · 连续 <strong id="streakCurrentCount">0</strong> 天</div>
+  <div id="streakCalendar" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;"></div>
+  <div class="form-actions"><button class="btn btn-outline btn-sm" onclick="closeModal('streakModal')">关闭</button></div>
+</div></div>
+
+<script>
+// ==================== 预设 ====================
+const PRESET_COURSES={mysql:{icon:'🗄️',name:'MySQL'},c:{icon:'💻',name:'C语言'},cpp:{icon:'⚙️',name:'C++'},java:{icon:'☕',name:'Java'},python:{icon:'🐍',name:'Python'},javascript:{icon:'📜',name:'JavaScript'},go:{icon:'🔷',name:'Go'},rust:{icon:'🦀',name:'Rust'},algo:{icon:'🧮',name:'数据结构与算法'},network:{icon:'🌐',name:'计算机网络'},os:{icon:'🖥️',name:'操作系统'},linux:{icon:'🐧',name:'Linux'},math:{icon:'📐',name:'高等数学'},english:{icon:'🇬🇧',name:'英语'},politics:{icon:'📰',name:'政治'}};
+const FIXED_COURSE_KEY='english',FIXED_COURSE_ID='fixed_english';
+const THEMES=[{bg:'linear-gradient(135deg,#fff0f3,#fce4ec)',text:'#c0395b',accent:'#ff8fa3',shadow:'rgba(255,143,163,0.3)',border:'#ffb3c6',icon:'🌸',pattern:'dots'},{bg:'linear-gradient(135deg,#e8f5ff,#e0f0ff)',text:'#1565c0',accent:'#64b5f6',shadow:'rgba(100,181,246,0.3)',border:'#90caf9',icon:'💎',pattern:'grid'},{bg:'linear-gradient(135deg,#fff8e1,#fff3cd)',text:'#e65100',accent:'#ffb74d',shadow:'rgba(255,183,77,0.3)',border:'#ffcc80',icon:'🍑',pattern:'waves'},{bg:'linear-gradient(135deg,#f3e5f5,#ede7f6)',text:'#4527a0',accent:'#b39ddb',shadow:'rgba(179,157,219,0.3)',border:'#c5cae9',icon:'🦄',pattern:'stars'},{bg:'linear-gradient(135deg,#fce4ec,#f8bbd0)',text:'#880e4f',accent:'#f06292',shadow:'rgba(240,98,146,0.3)',border:'#f48fb1',icon:'🍓',pattern:'hearts'},{bg:'linear-gradient(135deg,#e0f7fa,#b2ebf2)',text:'#006064',accent:'#4dd0e1',shadow:'rgba(77,208,225,0.3)',border:'#80deea',icon:'🌊',pattern:'waves'},{bg:'linear-gradient(135deg,#f1f8e9,#dcedc8)',text:'#33691e',accent:'#81c784',shadow:'rgba(129,199,132,0.3)',border:'#a5d6a7',icon:'🌿',pattern:'leaves'},{bg:'linear-gradient(135deg,#fff9f0,#ffe0e8)',text:'#6d4c41',accent:'#ffab91',shadow:'rgba(255,171,145,0.3)',border:'#ffccbc',icon:'🌸',pattern:'dots'},{bg:'linear-gradient(135deg,#f3e8ff,#ede0ff)',text:'#4a148c',accent:'#ce93d8',shadow:'rgba(206,147,216,0.3)',border:'#d1c4e9',icon:'🍇',pattern:'grid'},{bg:'linear-gradient(135deg,#1a1a2e,#16213e)',text:'#e8dfff',accent:'#ffd4df',shadow:'rgba(100,100,180,0.3)',border:'#3a3a5e',icon:'🌙',pattern:'stars'},{bg:'linear-gradient(135deg,#fff0e0,#ffe8d6)',text:'#bf360c',accent:'#ff8a65',shadow:'rgba(255,138,101,0.3)',border:'#ffab91',icon:'🍯',pattern:'honey'},{bg:'linear-gradient(135deg,#e8eaf6,#e0e0ff)',text:'#1a237e',accent:'#7986cb',shadow:'rgba(121,134,203,0.3)',border:'#9fa8da',icon:'🌼',pattern:'grid'}];
+
+// ==================== 数据 ====================
+const STORAGE_KEY='studyHub_v4';
+function loadData(){const raw=localStorage.getItem(STORAGE_KEY);if(raw){try{return JSON.parse(raw);}catch(e){}}return getDefaultData();}
+function getDefaultData(){return{password:'',courses:[],schedules:[],summaries:{},streak:0,lastActiveDate:'',activeDates:[],overdueCourses:{},fixedCoursesInited:false,targetSchools:[],examSubjects:[],examPapers:[],examRecords:[],checkins:{}};}
+function saveData(d){localStorage.setItem(STORAGE_KEY,JSON.stringify(d));}
+let data=loadData();
+data.courses.forEach(c=>{if(!c.modules)c.modules=[];});
+if(!data.targetSchools)data.targetSchools=[];if(!data.examSubjects)data.examSubjects=[];if(!data.examRecords)data.examRecords=[];if(!data.checkins)data.checkins={};if(!data.examPapers)data.examPapers=[];
+if(!data.activeDates)data.activeDates=[];
+// 迁移旧数据：records 无 paperId 则创建默认试卷
+data.examRecords.forEach(r=>{if(!r.paperId){const defName=r.examName||'旧记录';let paper=data.examPapers.find(p=>p.subjectId===r.subjectId&&p.name===defName);if(!paper){paper={id:generateId(),subjectId:r.subjectId,name:defName};data.examPapers.push(paper);}r.paperId=paper.id;}});
+saveData(data);
+
+// ==================== 视图 ====================
+let currentView='dashboard',viewData={};
+function navigateTo(view,vd){currentView=view;viewData=vd||{};document.querySelectorAll('.view-container').forEach(el=>el.classList.remove('active'));const t=document.getElementById('view-'+view);if(t)t.classList.add('active');const bc=document.getElementById('breadcrumb'),bcLink=document.getElementById('bcLink'),bcCurrent=document.getElementById('bcCurrent'),bcSep1=document.getElementById('bcSep1'),bcSep2=document.getElementById('bcSep2');if(view==='dashboard'){bc.style.display='none';renderAll();}else if(view==='courseDetail'){bc.style.display='flex';bcSep1.style.display='inline';bcLink.style.display='none';bcSep2.style.display='none';bcCurrent.textContent=getCourseName(viewData.courseId);renderCourseDetail();}else if(view==='moduleDetail'){bc.style.display='flex';bcSep1.style.display='inline';bcLink.style.display='inline';bcSep2.style.display='inline';bcLink.textContent=getCourseName(viewData.courseId);bcCurrent.textContent=getModuleName(viewData.courseId,viewData.moduleId);renderModuleDetail();}window.scrollTo(0,0);}
+function goBackToCourse(){if(viewData.courseId)navigateTo('courseDetail',{courseId:viewData.courseId});}
+function getCourseName(cid){const c=data.courses.find(x=>x.id===cid);return c?(c.icon||'📖')+' '+c.name:'';}
+function getModuleName(cid,mid){const c=data.courses.find(x=>x.id===cid);if(!c)return'';const m=(c.modules||[]).find(x=>x.id===mid);return m?m.name:'';}
+
+// ==================== 固定课程 ====================
+function initFixedCourses(){if(data.fixedCoursesInited)return;const has=data.courses.some(c=>c.fixedId===FIXED_COURSE_KEY);if(!has)data.courses.push({id:FIXED_COURSE_ID,fixedId:FIXED_COURSE_KEY,icon:'🇬🇧',name:'英语',dailyLoad:20,progress:0,goal:1000,priority:'high',createdAt:getDateStr(),isFixed:true,modules:[]});data.fixedCoursesInited=true;saveData(data);}
+
+// ==================== 夜间锁屏 ====================
+function isInLockPeriod(){return new Date().getHours()>=0&&new Date().getHours()<8;}
+function showNightLock(){document.getElementById('nightLock').classList.remove('hidden');updateNightClock();}
+function hideNightLock(){document.getElementById('nightLock').classList.add('hidden');}
+function updateNightClock(){const now=new Date();document.getElementById('nightTime').textContent=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;const unlock=new Date(now);unlock.setHours(8,0,0,0);if(now>=unlock)unlock.setDate(unlock.getDate()+1);const diff=unlock-now;document.getElementById('nightCountdown').textContent=`距离解锁还有 ${String(Math.floor(diff/3600000)).padStart(2,'0')}:${String(Math.floor((diff%3600000)/60000)).padStart(2,'0')}:${String(Math.floor((diff%60000)/1000)).padStart(2,'0')}`;}
+function createNightStars(){const c=document.getElementById('nightStars');['✨','⭐','🌟','💫','🌙','☁️'].forEach(emoji=>{for(let i=0;i<5;i++){const s=document.createElement('span');s.className='star';s.textContent=emoji;s.style.left=Math.random()*95+'%';s.style.top=Math.random()*90+'%';s.style.animationDelay=Math.random()*3+'s';s.style.fontSize=(10+Math.random()*18)+'px';c.appendChild(s);}});}
+
+// ==================== 时间限制 ====================
+function canManageSchedule(){if(secretBypassActive)return true;return new Date().getHours()>=8;}
+function updateScheduleUI(){const btn=document.getElementById('btnAddSchedule'),banner=document.getElementById('scheduleLockBanner');if(canManageSchedule()){btn.disabled=false;banner.style.display='none';}else{btn.disabled=true;banner.style.display='block';const now=new Date(),unlock=new Date(now);unlock.setHours(8,0,0,0);const mLeft=Math.floor((unlock-now)/60000);banner.innerHTML=`🕗 每日安排需要早上 8:00 之后才能添加～还有约 ${Math.floor(mLeft/60)}小时${mLeft%60}分钟 ☀️`;}}
+
+// ==================== 密码 ====================
+function handleGate(){if(isInLockPeriod()&&!secretBypassActive){document.getElementById('gateError').textContent='现在是休息时间，早上8:00以后再来吧 🌙';return;}const input=document.getElementById('gateInput').value.trim();if(!input){document.getElementById('gateError').textContent='请输入密码哟～';return;}if(!data.password){data.password=input;saveData(data);showToast('🔐 密码设置成功！','success');openGate();}else if(input===data.password){openGate();}else{document.getElementById('gateError').textContent='密码不对哦，再试一次吧 🥺';document.getElementById('gateInput').value='';}}
+function openGate(){document.getElementById('gate').classList.add('hidden');document.getElementById('gateInput').value='';document.getElementById('gateError').textContent='';initApp();}
+function changePassword(){const old=prompt('🔑 旧密码：');if(old!==data.password){showToast('旧密码不正确～','error');return;}const nw=prompt('✨ 新密码：');if(!nw||nw.length<2){showToast('密码至少2位～','warning');return;}if(nw!==prompt('🔁 确认新密码：')){showToast('两次不一致～','error');return;}data.password=nw;saveData(data);showToast('🎉 密码修改成功！','success');}
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&!document.getElementById('gate').classList.contains('hidden'))handleGate();});
+
+// ==================== 初始化 ====================
+function initApp(){initFixedCourses();checkStreak();checkOverdue();navigateTo('dashboard');updateCountdown();updateScheduleUI();setInterval(updateCountdown,1000);setInterval(checkOverdueAuto,60000);setInterval(updateScheduleUI,60000);updateGreeting();}
+function updateGreeting(){const h=new Date().getHours();let e,t;if(h<6){e='🌙';t='夜深了，注意休息～';}else if(h<8){e='🌅';t='清晨好！今天加油！';}else if(h<12){e='☀️';t='上午好！精力充沛！';}else if(h<14){e='🍱';t='中午好！记得午休～';}else if(h<18){e='📖';t='下午好！继续加油！';}else if(h<21){e='🌆';t='晚上好！温故知新～';}else{e='🌛';t='快到总结时间了！';}document.getElementById('greetingEmoji').textContent=e;document.getElementById('greetingText').textContent=t;}
+function checkStreak(){const today=getDateStr();if(!data.activeDates)data.activeDates=[];if(!data.activeDates.includes(today))data.activeDates.push(today);if(data.lastActiveDate===today)return;if(data.lastActiveDate===getDateStr(-1))data.streak+=1;else if(data.lastActiveDate!==today)data.streak=1;data.lastActiveDate=today;saveData(data);}
+function checkOverdue(){const yesterday=getDateStr(-1);data.courses.forEach(c=>{const s=getSummary(c.id,yesterday);if(!s||!s.text){if(!data.overdueCourses[c.id])data.overdueCourses[c.id]=0;data.overdueCourses[c.id]+=Math.ceil(c.dailyLoad*0.5);}});saveData(data);}
+function checkOverdueAuto(){const now=new Date();if(now.getHours()>=23){const today=getDateStr();let has=false;data.courses.forEach(c=>{const s=getSummary(c.id,today);if(!s||!s.text){if(!data.overdueCourses[c.id])data.overdueCourses[c.id]=0;data.overdueCourses[c.id]+=Math.ceil(c.dailyLoad*0.5);has=true;}});if(has){saveData(data);renderAll();showToast('⚠️ 已过23:00！未总结课程明日学习量已增加','warning');}}}
+function getEffectiveDailyLoad(c){return c.dailyLoad+(data.overdueCourses[c.id]||0);}
+function clearOverdue(cid){delete data.overdueCourses[cid];saveData(data);}
+function getSummary(cid,date){if(!data.summaries[cid])return null;return data.summaries[cid].find(s=>s.date===date)||null;}
+function getTodaySummary(cid){return getSummary(cid,getDateStr());}
+function getTodaySummaryCount(){const today=getDateStr();let n=0;Object.values(data.summaries).forEach(arr=>{if(arr.some(s=>s.date===today&&s.text))n++;});return n;}
+
+// ==================== 打卡相关 ====================
+function getCheckin(cid,date){const d=data.checkins[cid];if(!d)return null;return d[date]||null;}
+function getTodayCheckin(cid){return getCheckin(cid,getDateStr());}
+function isCheckinPassed(cid,date){const ci=getCheckin(cid,date||getDateStr());return ci&&ci.approved===true;}
+function getTodayCheckinCount(){const today=getDateStr();let n=0;Object.entries(data.checkins).forEach(([cid,records])=>{if(records[today]&&records[today].approved===true)n++;});return n;}
+
+function compressImage(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=function(e){const img=new Image();img.onload=function(){const canvas=document.createElement('canvas');let w=img.width,h=img.height;const maxW=600;if(w>maxW){h=Math.round(h*(maxW/w));w=maxW;}canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,w,h);resolve(canvas.toDataURL('image/jpeg',0.7));};img.src=e.target.result;};reader.readAsDataURL(file);});}
+
+function isDuplicateImage(cid,date,b64){const ci=getCheckin(cid,date);if(!ci||!ci.images)return false;return ci.images.some(img=>img.base64===b64);}
+
+function uploadCheckinImage(cid){const input=document.createElement('input');input.type='file';input.accept='image/*';input.onchange=async function(){const file=input.files[0];if(!file)return;if(file.size>10*1024*1024){showToast('图片不能超过 10MB 哦～','warning');return;}const b64=await compressImage(file);const today=getDateStr();if(isDuplicateImage(cid,today,b64)){showToast('这张图片已经上传过了哦～','warning');return;}if(!data.checkins[cid])data.checkins[cid]={};if(!data.checkins[cid][today])data.checkins[cid][today]={images:[],studyMinutes:0,approved:null,reviewedAt:null};data.checkins[cid][today].images.push({id:generateId(),base64:b64,uploadedAt:new Date().toISOString()});saveData(data);renderCheckinArea();showToast('📸 图片上传成功！','success');};input.click();}
+
+function submitCheckin(cid){const today=getDateStr();const ci=getCheckin(cid,today);if(!ci||!ci.images||ci.images.length===0){showToast('请先上传至少一张截图～','warning');return;}const minutes=parseInt(prompt(`📊 请输入今天「${getCourseName(cid)}」的学习时长（分钟）：`,'0'));if(isNaN(minutes)||minutes<0){showToast('请输入有效的分钟数～','warning');return;}const course=data.courses.find(c=>c.id===cid);if(!course)return;ci.studyMinutes=minutes;ci.approved=minutes>=course.dailyLoad;ci.reviewedAt=new Date().toISOString();saveData(data);renderCheckinArea();if(ci.approved){showToast('✅ 打卡成功！学习时长达标～','success');}else{showToast('❌ 未达标！今日学习时长不足，请继续努力～','error');}}
+
+function removeCheckinImage(cid,imgId){const today=getDateStr();const ci=getCheckin(cid,today);if(!ci)return;ci.images=ci.images.filter(x=>x.id!==imgId);if(ci.images.length===0){delete data.checkins[cid][today];if(Object.keys(data.checkins[cid]).length===0)delete data.checkins[cid];}saveData(data);renderCheckinArea();showToast('图片已删除','success');}
+
+function renderCheckinArea(){const cid=viewData.courseId;if(!cid)return;const course=data.courses.find(c=>c.id===cid);if(!course)return;const today=getDateStr();const ci=getCheckin(cid,today);const container=document.getElementById('checkinArea');let html='';
+  html+=`<div style="margin-bottom:12px;font-size:13px;"><span style="font-weight:700;">📅 ${today}</span> · 每日目标：<span style="font-weight:700;color:var(--pink-dark);">${course.dailyLoad} 分钟</span>`;
+  if(ci&&ci.approved!==null){html+=` · 判定结果：${ci.approved?'<span style="color:#2e7d32;">✅ 达标</span>':'<span style="color:#c62828;">❌ 未达标</span>'}`;}
+  if(ci&&ci.studyMinutes>0){html+=` · 学习时长：<strong>${ci.studyMinutes} 分钟</strong>`;}
+  html+=`</div>`;
+  html+=`<div class="checkin-upload-area"><button class="btn btn-primary btn-sm" onclick="uploadCheckinImage('${cid}')">📸 上传截图</button>`;
+  if(ci&&ci.images&&ci.images.length>0&&ci.approved===null){html+=`<button class="btn btn-enter btn-sm" onclick="submitCheckin('${cid}')">⚡ 提交判定</button>`;}
+  html+=`</div>`;
+  if(ci&&ci.images&&ci.images.length>0){html+=`<div style="margin-bottom:8px;font-weight:600;font-size:12px;">📎 今日已上传 ${ci.images.length} 张：</div><div style="display:flex;flex-wrap:wrap;gap:6px;">`;ci.images.forEach(img=>{html+=`<div class="checkin-img-preview"><img src="${img.base64}" alt="截图"><button class="remove-img" onclick="removeCheckinImage('${cid}','${img.id}')">×</button></div>`;});html+=`</div>`;}
+  // 历史记录
+  const allDates=Object.keys(data.checkins[cid]||{}).sort((a,b)=>b.localeCompare(a));
+  if(allDates.length>1){html+=`<div style="margin-top:16px;border-top:1px solid #eee;padding-top:12px;"><div style="font-weight:700;font-size:13px;margin-bottom:8px;">📋 历史打卡记录</div>`;allDates.forEach(d=>{if(d===today)return;const rec=data.checkins[cid][d];html+=`<div class="checkin-record ${rec.approved===true?'pass':rec.approved===false?'reject':''}"><div class="checkin-date-header">📅 ${d} · ${rec.studyMinutes||0} 分钟 · ${rec.approved===true?'✅':rec.approved===false?'❌':'⏳ 待判定'} · ${rec.images?rec.images.length:0} 张截图</div></div>`;});html+=`</div>`;}
+  if(allDates.length<=1){html+=`<div style="margin-top:12px;font-size:12px;color:var(--text-light);">暂无历史打卡记录～</div>`;}
+  container.innerHTML=html;
+  // 更新dashboard
+  renderAll();
+}
+
+// ==================== Dashboard 渲染 ====================
+function renderAll(){if(currentView!=='dashboard')return;renderStats();renderSchoolsInHeader();renderSchedules();renderPlans();renderExamSection();}
+function renderStats(){const today=getDateStr();document.getElementById('statCourses').textContent=data.courses.length;document.getElementById('statDone').textContent=data.schedules.filter(s=>s.date===today&&s.done).length;document.getElementById('statSummaries').textContent=getTodaySummaryCount();document.getElementById('statCheckins').textContent=getTodayCheckinCount();document.getElementById('statStreak').textContent=data.streak;document.getElementById('planBadge').textContent=data.courses.length+'门';document.getElementById('scheduleBadge').textContent=data.schedules.filter(s=>s.date===today).length+'项';const oc=Object.keys(data.overdueCourses).length;document.getElementById('deadlineWarning').style.display=oc>0?'block':'none';if(oc>0)document.getElementById('overdueCount').textContent=oc;}
+function renderSchoolsInHeader(){const container=document.getElementById('schoolChips');if(data.targetSchools.length===0){container.innerHTML='<span class="school-chip school-chip-add" onclick="openSchoolModal()">+ 添加目标院校</span>';return;}container.innerHTML=data.targetSchools.map(s=>`<span class="school-chip" onclick="editSchool('${s.id}')" title="${escapeHtml(s.notes||'')}">🏫 ${escapeHtml(s.name)}·${escapeHtml(s.major)}</span>`).join('')+'<span class="school-chip school-chip-add" onclick="openSchoolModal()">+</span>';}
+function renderSchedules(){const today=getDateStr(),todaySchedules=data.schedules.filter(s=>s.date===today),container=document.getElementById('scheduleList');if(todaySchedules.length===0){container.innerHTML=`<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">${new Date().getHours()<8?'⏰ 8:00后开放添加～':'还没有安排哦～'}</div></div>`;return;}todaySchedules.sort((a,b)=>a.time.localeCompare(b.time));const now=new Date(),nowTime=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;container.innerHTML=todaySchedules.map(s=>{const course=data.courses.find(c=>c.id===s.courseId);return`<div class="schedule-item ${s.done?'done':''} ${!s.done&&s.time<nowTime?'past':''}"><div class="schedule-time">${s.time}</div><div class="schedule-content"><div class="schedule-title">${escapeHtml(s.title)} ${course?'<span class="tag tag-pink">'+escapeHtml(course.name)+'</span>':''}</div>${s.desc?`<div class="schedule-desc">${escapeHtml(s.desc)}</div>`:''}</div><div class="schedule-check ${s.done?'checked':''}" onclick="toggleSchedule('${s.id}')">${s.done?'✓':''}</div><button style="background:none;border:none;cursor:pointer;font-size:13px;padding:2px;opacity:0.5;" onclick="deleteSchedule('${s.id}')">🗑️</button></div>`;}).join('');}
+function renderPlans(){const container=document.getElementById('planGrid');if(data.courses.length===0){container.innerHTML='<div class="empty-state"><div class="empty-state-icon">📖</div><div class="empty-state-text">还没有添加课程哦～</div></div>';return;}const today=getDateStr();const sorted=[...data.courses].sort((a,b)=>{if(a.isFixed&&!b.isFixed)return-1;if(!a.isFixed&&b.isFixed)return 1;return 0;});container.innerHTML=sorted.map(c=>{const ts=getTodaySummary(c.id),el=getEffectiveDailyLoad(c),he=(data.overdueCourses[c.id]||0)>0;const pp=c.goal>0?Math.min(100,Math.round((c.progress/c.goal)*100)):0;const io=!ts||!ts.text,iad=new Date().getHours()>=23;const modCount=(c.modules||[]).length;const cip=isCheckinPassed(c.id);const ci=getTodayCheckin(c.id);let cStatus='';if(ci&&ci.approved===true)cStatus='<span class="checkin-status ok">📸 打卡✅</span>';else if(ci&&ci.approved===false)cStatus='<span class="checkin-status fail">📸 打卡❌</span>';else cStatus='<span class="checkin-status none">📸 未打卡</span>';return`<div class="plan-card ${iad&&io?'overdue':''} ${c.isFixed?'fixed':''}"><div class="plan-card-header"><span class="plan-course-icon">${c.icon||'📖'}</span><span class="plan-course-name">${escapeHtml(c.name)}</span><span class="tag ${c.priority==='high'?'tag-pink':c.priority==='medium'?'tag-purple':'tag-mint'}">${c.priority==='high'?'高':c.priority==='medium'?'中':'低'}</span></div>${cStatus}<div class="plan-progress-bar"><div class="plan-progress-fill" style="width:${pp}%"></div></div><div class="plan-meta"><span>📊 ${c.progress}/${c.goal}</span><span>📈 ${el}/日${he?'<span style="color:#e03131">(+'+(data.overdueCourses[c.id]||0)+')</span>':''}</span></div><div class="plan-meta" style="margin-top:2px;"><span>📦 ${modCount} 模块</span></div>${ts&&ts.text?`<div class="plan-summary-text">📝 ${escapeHtml(ts.text.substring(0,60))}${ts.text.length>60?'...':''}</div>`:'<div style="font-size:11px;color:#e03131;margin-top:4px;">⚠️ 今日总结未完成</div>'}<div class="plan-actions"><button class="btn btn-enter btn-sm" onclick="navigateTo('courseDetail',{courseId:'${c.id}'})" style="flex:1;">📂 进入</button><button class="btn btn-primary btn-sm" onclick="openSummaryModal('${c.id}')">📝</button><button class="btn btn-outline btn-sm" onclick="openEditCourseModal('${c.id}')">✏️</button>${c.isFixed?'<button class="btn btn-danger" disabled style="opacity:0.3;cursor:not-allowed;">🔒</button>':'<button class="btn btn-danger" onclick="deleteCourse(\''+c.id+'\')">🗑️</button>'}</div></div>`;}).join('');}
+function renderExamSection(){const tabs=document.getElementById('examTabs'),list=document.getElementById('examScoreListShort');if(data.examSubjects.length===0){tabs.innerHTML='';list.innerHTML='<div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-text">还没有真题记录～</div></div>';return;}if(!currentExamTab||!data.examSubjects.find(s=>s.id===currentExamTab))currentExamTab=data.examSubjects[0].id;tabs.innerHTML=data.examSubjects.map(s=>`<span class="exam-subject-tab ${s.id===currentExamTab?'active':''}" onclick="currentExamTab='${s.id}';renderExamSection();">${escapeHtml(s.name)}</span>`).join('');const records=data.examRecords.filter(r=>r.subjectId===currentExamTab).sort((a,b)=>b.date.localeCompare(a.date));if(records.length===0){list.innerHTML='<div class="empty-state"><div class="empty-state-icon">📝</div><div class="empty-state-text">无成绩记录～</div></div>';return;}list.innerHTML=records.map(r=>`<div class="exam-score-card"><div class="exam-score-value">${r.score}<span style="font-size:11px;opacity:0.6;">/${r.totalScore}</span></div><div class="exam-score-meta"><div class="exam-score-date">📅 ${r.date}${r.examName?` · 📝 ${escapeHtml(r.examName)}`:''}</div>${r.notes?`<div class="exam-score-note">${escapeHtml(r.notes)}</div>`:''}</div><button class="btn btn-danger" onclick="deleteExamRecord('${r.id}')" style="flex-shrink:0;">🗑️</button></div>`).join('');}
+let currentExamTab=null;
+
+// ==================== 趋势弹窗 ====================
+function openTrendModal(){if(data.examSubjects.length===0){showToast('还没有真题科目～','warning');return;}const tabs=document.getElementById('trendTabs'),chart=document.getElementById('trendChart'),list=document.getElementById('trendList');let activeTab=currentExamTab||data.examSubjects[0].id;tabs.innerHTML=data.examSubjects.map(s=>`<span class="exam-subject-tab ${s.id===activeTab?'active':''}" onclick="renderTrend('${s.id}')">${escapeHtml(s.name)}</span>`).join('');openModal('trendModal');renderTrend(activeTab);}
+function renderTrend(sid){document.querySelectorAll('#trendTabs .exam-subject-tab').forEach(t=>t.classList.remove('active'));const activeEl=document.querySelector(`#trendTabs .exam-subject-tab[onclick*="renderTrend('${sid}')"]`);if(activeEl)activeEl.classList.add('active');const records=data.examRecords.filter(r=>r.subjectId===sid).sort((a,b)=>a.date.localeCompare(b.date));const chart=document.getElementById('trendChart'),list=document.getElementById('trendList');if(records.length===0){chart.innerHTML='<div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-text">暂无成绩～</div></div>';list.innerHTML='';return;}
+// 整体趋势
+let chartHTML=`<div style="font-size:13px;font-weight:600;color:var(--text-light);margin-bottom:6px;">📈 总体趋势（共${records.length}次）</div><div class="exam-trend">`;
+records.slice(-40).forEach(r=>{const h=r.totalScore>0?Math.max(4,(r.score/r.totalScore)*80):4;const paper=data.examPapers.find(p=>p.id===r.paperId);chartHTML+=`<div class="exam-trend-bar" style="height:${h}px;background:${r.score/r.totalScore>=0.8?'var(--mint-dark)':r.score/r.totalScore>=0.6?'var(--yellow-dark)':'var(--pink-dark)'};" title="${r.date}: ${paper?paper.name:''} ${r.score}/${r.totalScore}"></div>`;});chartHTML+='</div>';
+// 按试卷分组趋势
+const papers=data.examPapers.filter(p=>p.subjectId===sid);
+if(papers.length>1){chartHTML+=`<div style="margin-top:16px;border-top:1px solid #eee;padding-top:12px;">`;
+papers.forEach(paper=>{const gr=records.filter(r=>r.paperId===paper.id);if(gr.length===0)return;chartHTML+=`<div style="font-size:13px;font-weight:600;color:var(--text-light);margin-bottom:6px;">📋 ${escapeHtml(paper.name)}（${gr.length}次）</div><div class="exam-trend">`;gr.slice(-15).forEach(r=>{const h=r.totalScore>0?Math.max(4,(r.score/r.totalScore)*80):4;chartHTML+=`<div class="exam-trend-bar" style="height:${h}px;background:${r.score/r.totalScore>=0.8?'var(--mint-dark)':r.score/r.totalScore>=0.6?'var(--yellow-dark)':'var(--pink-dark)'};" title="${r.date}: ${r.score}/${r.totalScore}"></div>`;});chartHTML+='</div>';});
+chartHTML+=`</div>`;}
+chart.innerHTML=chartHTML;
+const allRecords=[...records].reverse();list.innerHTML=allRecords.map(r=>{const paper=data.examPapers.find(p=>p.id===r.paperId);return`<div class="exam-score-card"><div class="exam-score-value">${r.score}<span style="font-size:11px;opacity:0.6;">/${r.totalScore}</span></div><div class="exam-score-meta"><div class="exam-score-date">📅 ${r.date}${paper?` · 📝 ${escapeHtml(paper.name)}`:''}</div>${r.notes?`<div class="exam-score-note">${escapeHtml(r.notes)}</div>`:''}</div><button class="btn btn-danger" onclick="deleteExamRecordFromTrend('${r.id}','${sid}')">🗑️</button></div>`}).join('');}
+function deleteExamRecordFromTrend(rid,sid){if(!confirm('确定删除这条成绩吗？'))return;data.examRecords=data.examRecords.filter(x=>x.id!==rid);saveData(data);renderTrend(sid);renderExamSection();}
+
+// ==================== 打卡日历 ====================
+let streakCalYear, streakCalMonth;
+function openStreakCalendar(){
+  if(!data.activeDates||data.activeDates.length===0){showToast('还没有活跃记录哦～','warning');return;}
+  const now=new Date();streakCalYear=now.getFullYear();streakCalMonth=now.getMonth()+1;
+  renderStreakCalendar();
+  openModal('streakModal');
+}
+function navigateStreakMonth(dir){
+  streakCalMonth+=dir;
+  if(streakCalMonth>12){streakCalMonth=1;streakCalYear++;}
+  if(streakCalMonth<1){streakCalMonth=12;streakCalYear--;}
+  renderStreakCalendar();
+}
+function renderStreakCalendar(){
+  const sorted=[...data.activeDates].sort();const first=sorted[0],last=sorted[sorted.length-1];
+  document.getElementById('streakDateRange').textContent=`${first} ~ ${last}`;
+  document.getElementById('streakActiveCount').textContent=sorted.length;
+  document.getElementById('streakCurrentCount').textContent=data.streak;
+  document.getElementById('streakMonthTitle').textContent=`🔥 ${streakCalYear}年${streakCalMonth}月`;
+  const cal=document.getElementById('streakCalendar');
+  const heads=['日','一','二','三','四','五','六'];
+  cal.innerHTML=heads.map(h=>`<div class="streak-cal-head">${h}</div>`).join('');
+  const start=new Date(streakCalYear,streakCalMonth-1,1);
+  start.setDate(start.getDate()-start.getDay());
+  const end=new Date(streakCalYear,streakCalMonth,0);
+  end.setDate(end.getDate()+6-end.getDay());
+  const activeSet=new Set(sorted);
+  let d=new Date(start);
+  while(d<=end){
+    const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const isActive=activeSet.has(ds);
+    const isOtherMonth=d.getMonth()+1!==streakCalMonth;
+    const isToday=ds===getDateStr();
+    cal.innerHTML+=`<div class="streak-cal-cell" style="${isToday?'background:#fff3bf;font-weight:700;':''}${isActive&&!isToday?'background:#ffe8e8;':''}${isOtherMonth?'opacity:0.35;':''}"><span class="day-num" style="color:${isActive?'#c62828':isToday?'#e65100':isOtherMonth?'#bbb':'#999'}">${d.getDate()}</span>${isActive?`<span class="streak-cal-dot"></span>`:''}</div>`;
+    d.setDate(d.getDate()+1);
+  }
+}
+
+// ==================== 倒计时 ====================
+function updateCountdown(){const now=new Date(),deadline=new Date(now);deadline.setHours(23,0,0,0);const banner=document.getElementById('deadlineBanner'),el=document.getElementById('countdown');if(now>=deadline){el.textContent='已超时！';banner.classList.add('urgent');}else{banner.classList.remove('urgent');const diff=deadline-now;el.textContent=`${String(Math.floor(diff/3600000)).padStart(2,'0')}:${String(Math.floor((diff%3600000)/60000)).padStart(2,'0')}:${String(Math.floor((diff%60000)/1000)).padStart(2,'0')}`;}}
+
+// ==================== 课程 ====================
+function onPresetChange(){const p=document.getElementById('coursePreset').value;document.getElementById('customNameGroup').style.display=p==='custom'?'block':'none';document.getElementById('iconGroup').style.display=p==='custom'?'block':'none';}
+function openAddCourseModal(){document.getElementById('courseModalTitle').textContent='🌸 添加新课程';document.getElementById('editCourseId').value='';document.getElementById('coursePreset').value='';document.getElementById('courseName').value='';document.getElementById('courseIcon').value='';document.getElementById('courseDailyLoad').value='10';document.getElementById('courseProgress').value='0';document.getElementById('courseGoal').value='300';document.getElementById('coursePriority').value='medium';document.getElementById('customNameGroup').style.display='none';document.getElementById('iconGroup').style.display='none';openModal('courseModal');}
+function openEditCourseModal(cid){const c=data.courses.find(x=>x.id===cid);if(!c)return;document.getElementById('courseModalTitle').textContent='✏️ 编辑课程';document.getElementById('editCourseId').value=c.id;const pk=Object.keys(PRESET_COURSES).find(k=>PRESET_COURSES[k].name===c.name&&PRESET_COURSES[k].icon===c.icon);if(pk){document.getElementById('coursePreset').value=pk;document.getElementById('customNameGroup').style.display='none';document.getElementById('iconGroup').style.display='none';}else{document.getElementById('coursePreset').value='custom';document.getElementById('customNameGroup').style.display='block';document.getElementById('iconGroup').style.display='block';document.getElementById('courseName').value=c.name;document.getElementById('courseIcon').value=c.icon||'';}document.getElementById('courseDailyLoad').value=c.dailyLoad;document.getElementById('courseProgress').value=c.progress;document.getElementById('courseGoal').value=c.goal;document.getElementById('coursePriority').value=c.priority;openModal('courseModal');}
+function saveCourse(){const id=document.getElementById('editCourseId').value,preset=document.getElementById('coursePreset').value;const cn=document.getElementById('courseName').value.trim(),ci=document.getElementById('courseIcon').value.trim();const dl=parseInt(document.getElementById('courseDailyLoad').value)||10,prog=parseInt(document.getElementById('courseProgress').value)||0,goal=parseInt(document.getElementById('courseGoal').value)||300,pri=document.getElementById('coursePriority').value;let icon,name;if(preset==='custom'){if(!cn){showToast('请输入课程名称～','warning');return;}name=cn;icon=ci||'📖';}else if(preset&&PRESET_COURSES[preset]){icon=PRESET_COURSES[preset].icon;name=PRESET_COURSES[preset].name;}else{showToast('请选择一个课程～','warning');return;}const ex=data.courses.find(c=>c.name===name&&c.id!==id);if(ex){showToast(`「${name}」已存在～`,'warning');return;}if(id){const c=data.courses.find(x=>x.id===id);if(c){c.icon=icon;c.name=name;c.dailyLoad=dl;c.progress=prog;c.goal=goal;c.priority=pri;}}else{data.courses.push({id:generateId(),icon,name,dailyLoad:dl,progress:prog,goal,priority:pri,createdAt:getDateStr(),isFixed:false,modules:[]});}saveData(data);closeModal('courseModal');renderAll();showToast(id?'✅ 课程已更新！':'🎉 课程添加成功！','success');}
+function deleteCourse(cid){const c=data.courses.find(x=>x.id===cid);if(!c)return;if(c.isFixed){showToast('🔒 英语是固定课程，不可删除～','warning');return;}if(!confirm(`确定删除「${c.name}」？`))return;data.courses=data.courses.filter(x=>x.id!==cid);delete data.summaries[cid];delete data.overdueCourses[cid];delete data.checkins[cid];saveData(data);renderAll();showToast('🗑️ 已删除','success');}
+
+// ==================== 日程 ====================
+function openAddScheduleModal(){if(!canManageSchedule()){showToast('🕗 8:00后才能添加～','warning');return;}const now=new Date();document.getElementById('scheduleTime').value=`${String(Math.max(8,now.getHours())).padStart(2,'0')}:00`;document.getElementById('scheduleTitle').value='';document.getElementById('scheduleDesc').value='';const sel=document.getElementById('scheduleCourse');sel.innerHTML='<option value="">无关联课程</option>'+data.courses.map(c=>`<option value="${c.id}">${c.icon||'📖'} ${c.name}</option>`).join('');sel.value='';openModal('scheduleModal');}
+function saveSchedule(){if(!canManageSchedule()){showToast('🕗 8:00后才能添加～','warning');return;}const time=document.getElementById('scheduleTime').value,title=document.getElementById('scheduleTitle').value.trim(),cid=document.getElementById('scheduleCourse').value,desc=document.getElementById('scheduleDesc').value.trim();if(!time||!title){showToast('请填写时间和事项～','warning');return;}if(parseInt(time.split(':')[0])<8){showToast('⏰ 不能早于8:00～','warning');return;}data.schedules.push({id:generateId(),time,title,courseId:cid,desc,done:false,date:getDateStr()});saveData(data);closeModal('scheduleModal');renderAll();showToast('✅ 日程已添加！','success');}
+function toggleSchedule(sid){const s=data.schedules.find(x=>x.id===sid);if(!s)return;s.done=!s.done;saveData(data);renderAll();}
+function deleteSchedule(sid){data.schedules=data.schedules.filter(x=>x.id!==sid);saveData(data);renderAll();}
+function resetDailySchedule(){if(!confirm('确定重置今日安排？'))return;const today=getDateStr();data.schedules.forEach(s=>{if(s.date===today)s.done=false;});saveData(data);renderAll();showToast('🔄 已重置','success');}
+
+// ==================== 总结 ====================
+function openSummaryModal(cid){const c=data.courses.find(x=>x.id===cid);if(!c)return;document.getElementById('summaryCourseId').value=cid;document.getElementById('summaryCourseLabel').textContent=(c.icon||'📖')+' '+c.name;const ts=getTodaySummary(cid);document.getElementById('summaryText').value=ts?ts.text:'';document.getElementById('summaryAmount').value=ts?(ts.amount||0):0;openModal('summaryModal');}
+function saveSummary(){const cid=document.getElementById('summaryCourseId').value,text=document.getElementById('summaryText').value.trim(),amount=parseInt(document.getElementById('summaryAmount').value)||0,today=getDateStr();if(!text){showToast('请写一点总结～','warning');return;}if(!data.summaries[cid])data.summaries[cid]=[];const ex=data.summaries[cid].find(s=>s.date===today);if(ex){ex.text=text;ex.amount=amount;ex.time=new Date().toISOString();}else{data.summaries[cid].push({date:today,text,amount,time:new Date().toISOString()});}const c=data.courses.find(x=>x.id===cid);if(c&&amount>0)c.progress+=amount;clearOverdue(cid);saveData(data);closeModal('summaryModal');renderAll();showToast('🎉 总结提交成功！','success');}
+
+// ==================== 院校 ====================
+function openSchoolModal(editId){document.getElementById('schoolModalTitle').textContent=editId?'✏️ 编辑院校':'🏫 添加目标院校';document.getElementById('editSchoolId').value=editId||'';if(editId){const s=data.targetSchools.find(x=>x.id===editId);if(s){document.getElementById('schoolName').value=s.name;document.getElementById('schoolMajor').value=s.major;document.getElementById('schoolNotes').value=s.notes||'';}}else{document.getElementById('schoolName').value='';document.getElementById('schoolMajor').value='';document.getElementById('schoolNotes').value='';}openModal('schoolModal');}
+function editSchool(id){openSchoolModal(id);}
+function saveSchool(){const id=document.getElementById('editSchoolId').value,name=document.getElementById('schoolName').value.trim(),major=document.getElementById('schoolMajor').value.trim(),notes=document.getElementById('schoolNotes').value.trim();if(!name){showToast('请输入院校名称～','warning');return;}if(id){const s=data.targetSchools.find(x=>x.id===id);if(s){s.name=name;s.major=major;s.notes=notes;}}else{data.targetSchools.push({id:generateId(),name,major,notes});}saveData(data);closeModal('schoolModal');renderAll();showToast(id?'✅ 已更新！':'🎉 目标院校已添加！','success');}
+function deleteSchool(id){if(!confirm('确定删除？'))return;data.targetSchools=data.targetSchools.filter(x=>x.id!==id);saveData(data);renderAll();showToast('🗑️ 已删除','success');}
+
+// ==================== 真题 ====================
+function openExamSubjectModal(){document.getElementById('examSubjectName').value='';document.getElementById('examSubjectList').innerHTML=data.examSubjects.map(s=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;"><span>📝 ${escapeHtml(s.name)}</span><button class="btn btn-danger" onclick="deleteExamSubject('${s.id}')">🗑️</button></div>`).join('')||'<div style="color:var(--text-light);font-size:12px;">暂无科目</div>';openModal('examSubjectModal');}
+function saveExamSubject(){const name=document.getElementById('examSubjectName').value.trim();if(!name){showToast('请输入科目名称～','warning');return;}if(data.examSubjects.find(s=>s.name===name)){showToast('该科目已存在～','warning');return;}data.examSubjects.push({id:generateId(),name});saveData(data);closeModal('examSubjectModal');renderAll();showToast('✅ 已添加！','success');}
+function deleteExamSubject(id){if(!confirm('删除科目将同时删除该科目下所有试卷和成绩，确定？'))return;data.examSubjects=data.examSubjects.filter(x=>x.id!==id);data.examPapers=data.examPapers.filter(x=>x.subjectId!==id);data.examRecords=data.examRecords.filter(x=>x.subjectId!==id);saveData(data);closeModal('examSubjectModal');renderAll();showToast('🗑️ 已删除','success');}
+function openExamPaperModal(editId) {
+  document.getElementById('examPaperModalTitle').textContent = editId ? '✏️ 编辑试卷' : '📋 添加试卷';
+  document.getElementById('editPaperId').value = editId || '';
+  const sel = document.getElementById('paperSubject');
+  sel.innerHTML = data.examSubjects.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
+  if (editId) {
+    const p = data.examPapers.find(x => x.id === editId);
+    if (p) { sel.value = p.subjectId; document.getElementById('paperName').value = p.name; }
+  } else {
+    sel.value = currentExamTab || '';
+    document.getElementById('paperName').value = '';
+  }
+  openModal('examPaperModal');
+}
+function savePaper() {
+  const sid = document.getElementById('paperSubject').value;
+  const name = document.getElementById('paperName').value.trim();
+  const editId = document.getElementById('editPaperId').value;
+  if (!sid) { showToast('请选择科目～', 'warning'); return; }
+  if (!name) { showToast('请输入试卷名称～', 'warning'); return; }
+  const dup = data.examPapers.find(p => p.subjectId === sid && p.name === name && p.id !== editId);
+  if (dup) { showToast('该科目下已有同名试卷～', 'warning'); return; }
+  if (editId) {
+    const p = data.examPapers.find(x => x.id === editId);
+    if (p) { p.subjectId = sid; p.name = name; }
+  } else {
+    data.examPapers.push({ id: generateId(), subjectId: sid, name });
+  }
+  saveData(data); closeModal('examPaperModal'); renderAll();
+  showToast(editId ? '✅ 试卷已更新！' : '🎉 试卷添加成功！', 'success');
+}
+function deletePaper(pid) {
+  if (!confirm('删除试卷将同时删除该试卷下所有成绩，确定？')) return;
+  data.examPapers = data.examPapers.filter(x => x.id !== pid);
+  data.examRecords = data.examRecords.filter(x => x.paperId !== pid);
+  saveData(data); renderAll(); showToast('🗑️ 已删除', 'success');
+}
+
+function openExamScoreModal() {
+  if (data.examSubjects.length === 0) { showToast('请先添加真题科目～', 'warning'); return; }
+  if (data.examPapers.length === 0) { showToast('请先添加试卷～', 'warning'); return; }
+  const sel = document.getElementById('examScorePaper');
+  // Group papers by subject
+  let html = '';
+  data.examSubjects.forEach(s => {
+    const papers = data.examPapers.filter(p => p.subjectId === s.id);
+    if (papers.length > 0) {
+      html += `<optgroup label="${s.name}">`;
+      papers.forEach(p => { html += `<option value="${p.id}">${escapeHtml(p.name)}</option>`; });
+      html += '</optgroup>';
+    }
+  });
+  sel.innerHTML = html;
+  // Default to current tab's first paper
+  if (currentExamTab) {
+    const firstPaper = data.examPapers.find(p => p.subjectId === currentExamTab);
+    if (firstPaper) sel.value = firstPaper.id;
+  }
+  document.getElementById('examScoreScore').value = '';
+  document.getElementById('examScoreTotal').value = '100';
+  document.getElementById('examScoreDate').value = getDateStr();
+  document.getElementById('examScoreNote').value = '';
+  openModal('examScoreModal');
+}
+
+function saveExamScore() {
+  const paperId = document.getElementById('examScorePaper').value;
+  const paper = data.examPapers.find(p => p.id === paperId);
+  if (!paper) { showToast('请选择试卷～', 'warning'); return; }
+  const score = parseInt(document.getElementById('examScoreScore').value);
+  const total = parseInt(document.getElementById('examScoreTotal').value) || 100;
+  const date = document.getElementById('examScoreDate').value;
+  const note = document.getElementById('examScoreNote').value.trim();
+  if (!paperId || isNaN(score)) { showToast('请填写试卷和得分～', 'warning'); return; }
+  if (!date) { showToast('请选择日期～', 'warning'); return; }
+  data.examRecords.push({
+    id: generateId(), subjectId: paper.subjectId, paperId,
+    date, score, totalScore: total, notes: note
+  });
+  saveData(data); closeModal('examScoreModal'); renderAll();
+  showToast('✅ 成绩已记录！', 'success');
+}
+
+function deleteExamRecord(id) {
+  if (!confirm('确定删除？')) return;
+  data.examRecords = data.examRecords.filter(x => x.id !== id);
+  saveData(data); renderAll(); showToast('🗑️ 已删除', 'success');
+}
+
+function renderExamSection() {
+  const tabs = document.getElementById('examTabs');
+  const list = document.getElementById('examScoreListShort');
+  if (data.examSubjects.length === 0) {
+    tabs.innerHTML = ''; list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-text">还没有真题科目～<br>先用「+ 科目」创建，再用「+ 试卷」添加试卷</div></div>';
+    return;
+  }
+  if (!currentExamTab || !data.examSubjects.find(s => s.id === currentExamTab)) {
+    currentExamTab = data.examSubjects[0].id;
+  }
+  tabs.innerHTML = data.examSubjects.map(s =>
+    `<span class="exam-subject-tab ${s.id === currentExamTab ? 'active' : ''}" onclick="currentExamTab='${s.id}';renderExamSection();">${escapeHtml(s.name)}</span>`
+  ).join('');
+
+  const papers = data.examPapers.filter(p => p.subjectId === currentExamTab).sort((a, b) => a.name.localeCompare(b.name));
+  if (papers.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">该科目下还没有试卷～<br>点击「+ 试卷」添加</div></div>';
+    return;
+  }
+  let html = '';
+  papers.forEach(paper => {
+    const records = data.examRecords.filter(r => r.paperId === paper.id).sort((a, b) => b.date.localeCompare(a.date));
+    html += `<div style="font-weight:700;font-size:13px;margin:8px 0 4px;display:flex;align-items:center;gap:6px;">📋 ${escapeHtml(paper.name)}<span style="font-weight:400;font-size:11px;color:var(--text-light);">${records.length}条记录</span><button class="btn btn-danger" onclick="deletePaper('${paper.id}')" style="padding:2px 8px;font-size:10px;margin-left:auto;">🗑️</button></div>`;
+    if (records.length === 0) {
+      html += '<div style="font-size:12px;color:var(--text-light);padding:4px 0 8px;">暂无成绩</div>';
+    }
+    records.forEach(r => {
+      html += `<div class="exam-score-card"><div class="exam-score-value">${r.score}<span style="font-size:11px;opacity:0.6;">/${r.totalScore}</span></div><div class="exam-score-meta"><div class="exam-score-date">📅 ${r.date}</div>${r.notes ? `<div class="exam-score-note">${escapeHtml(r.notes)}</div>` : ''}</div><button class="btn btn-danger" onclick="deleteExamRecord('${r.id}')" style="flex-shrink:0;">🗑️</button></div>`;
+    });
+  });
+  list.innerHTML = html;
+}
+
+// ==================== 模块 ====================
+function openModuleModal(editId){document.getElementById('moduleModalTitle').textContent=editId?'✏️ 编辑模块':'📦 新建模块';document.getElementById('editModuleId').value=editId||'';if(editId){const c=getCurrentCourse();if(c){const m=(c.modules||[]).find(x=>x.id===editId);if(m)document.getElementById('moduleName').value=m.name;}}else{document.getElementById('moduleName').value='';}openModal('moduleModal');}
+function getCurrentCourse(){return data.courses.find(c=>c.id===viewData.courseId);}
+function saveModule(){const name=document.getElementById('moduleName').value.trim(),editId=document.getElementById('editModuleId').value;if(!name){showToast('请输入模块名称～','warning');return;}const c=getCurrentCourse();if(!c)return;if(!c.modules)c.modules=[];if(editId){const m=c.modules.find(x=>x.id===editId);if(m)m.name=name;}else{const themeId=Math.floor(Math.random()*THEMES.length);c.modules.push({id:generateId(),name,themeId,knowledgePoints:[]});}saveData(data);closeModal('moduleModal');if(currentView==='courseDetail')renderCourseDetail();else navigateTo('courseDetail',{courseId:viewData.courseId});showToast(editId?'✅ 已更新！':'🎉 模块已创建！','success');}
+function deleteModule(mid){if(!confirm('确定删除模块及其中所有知识点？'))return;const c=getCurrentCourse();if(!c)return;c.modules=(c.modules||[]).filter(m=>m.id!==mid);saveData(data);renderCourseDetail();showToast('🗑️ 已删除','success');}
+function renderCourseDetail(){const c=getCurrentCourse();if(!c)return;const hdr=document.getElementById('courseDetailHeader');hdr.innerHTML=`<div class="cd-icon">${c.icon||'📖'}</div><div class="cd-info"><div class="cd-name">${escapeHtml(c.name)}</div><div style="color:var(--text-light);font-size:13px;">📊 ${c.progress}/${c.goal} · 📈 ${getEffectiveDailyLoad(c)}/日 · 📦 ${(c.modules||[]).length} 模块</div></div>`;const grid=document.getElementById('moduleGrid');document.getElementById('moduleBadge').textContent=(c.modules||[]).length+'个';if(!c.modules||c.modules.length===0){grid.innerHTML='<div class="empty-state"><div class="empty-state-icon">🗂️</div><div class="empty-state-text">还没有模块～</div></div>';}else{grid.innerHTML=c.modules.map(m=>{const th=THEMES[m.themeId||0];return`<div class="module-card" style="background:${th.bg};color:${th.text};box-shadow:0 4px 15px ${th.shadow};border:2px solid ${th.border};" onclick="navigateTo('moduleDetail',{courseId:'${c.id}',moduleId:'${m.id}'})"><button class="module-delete" onclick="event.stopPropagation();deleteModule('${m.id}')">🗑️</button><div class="module-icon">${th.icon}</div><div class="module-name">${escapeHtml(m.name)}</div><div class="module-count">${(m.knowledgePoints||[]).length} 条</div></div>`;}).join('');}renderCheckinArea();}
+
+// ==================== 知识点 ====================
+function openKpModal(editId){document.getElementById('kpModalTitle').textContent=editId?'✏️ 编辑知识点':'✨ 添加知识点';document.getElementById('editKpId').value=editId||'';if(editId){const m=getCurrentModule();if(m){const kp=(m.knowledgePoints||[]).find(x=>x.id===editId);if(kp){document.getElementById('kpTitle').value=kp.title;document.getElementById('kpContent').value=kp.content;}}}else{document.getElementById('kpTitle').value='';document.getElementById('kpContent').value='';}openModal('kpModal');}
+function getCurrentModule(){const c=getCurrentCourse();if(!c)return null;return(c.modules||[]).find(m=>m.id===viewData.moduleId);}
+function saveKp(){const title=document.getElementById('kpTitle').value.trim(),content=document.getElementById('kpContent').value.trim(),editId=document.getElementById('editKpId').value;if(!title){showToast('请输入标题～','warning');return;}const m=getCurrentModule();if(!m)return;if(!m.knowledgePoints)m.knowledgePoints=[];if(editId){const kp=m.knowledgePoints.find(x=>x.id===editId);if(kp){kp.title=title;kp.content=content;}}else{m.knowledgePoints.push({id:generateId(),title,content,createdAt:new Date().toISOString()});}saveData(data);closeModal('kpModal');renderModuleDetail();showToast(editId?'✅ 已更新！':'🎉 知识点已添加！','success');}
+function deleteKp(kpid){if(!confirm('确定删除？'))return;const m=getCurrentModule();if(!m)return;m.knowledgePoints=(m.knowledgePoints||[]).filter(x=>x.id!==kpid);saveData(data);renderModuleDetail();showToast('🗑️ 已删除','success');}
+function renderModuleDetail(){const c=getCurrentCourse(),m=getCurrentModule();if(!c||!m)return;const th=THEMES[m.themeId||0];const hdr=document.getElementById('moduleDetailHeader');hdr.innerHTML=`<div class="cd-icon">${th.icon}</div><div class="cd-info"><div class="cd-name">${escapeHtml(m.name)}</div><div style="color:var(--text-light);font-size:13px;">📖 ${escapeHtml(c.name)} · ${(m.knowledgePoints||[]).length} 条</div></div>`;const section=document.getElementById('moduleKpSection');section.style.background=th.bg.replace('135deg','180deg');section.style.boxShadow=`0 4px 25px ${th.shadow}`;const kpList=document.getElementById('kpList');document.getElementById('kpBadge').textContent=(m.knowledgePoints||[]).length+'条';if(!m.knowledgePoints||m.knowledgePoints.length===0){kpList.innerHTML='<div class="empty-state"><div class="empty-state-icon">✨</div><div class="empty-state-text">还没有知识点哦～</div></div>';return;}const isGrid=THEMES[m.themeId||0].pattern==='grid';kpList.style.display=isGrid?'grid':'flex';kpList.style.gridTemplateColumns=isGrid?'repeat(auto-fill,minmax(200px,1fr))':'';kpList.style.gap='10px';kpList.style.flexDirection=isGrid?'':'column';kpList.innerHTML=m.knowledgePoints.map(kp=>{const time=kp.createdAt?new Date(kp.createdAt).toLocaleDateString('zh-CN'):'';return`<div class="kp-card" style="background:rgba(255,255,255,0.75);border-left:3px solid ${th.accent};border-radius:${th.pattern==='stars'?'16px 4px 16px 4px':th.pattern==='waves'?'8px 20px 8px 20px':'12px'};"><div class="kp-actions"><button class="btn btn-outline btn-sm" onclick="openKpModal('${kp.id}')" style="padding:2px 8px;font-size:10px;">✏️</button><button class="btn btn-danger" onclick="deleteKp('${kp.id}')" style="padding:2px 8px;font-size:10px;">🗑️</button></div><div class="kp-title" style="color:${th.text};">${escapeHtml(kp.title)}</div><div class="kp-content">${escapeHtml(kp.content)}</div>${time?`<div class="kp-time">📅 ${time}</div>`:''}</div>`;}).join('');}
+
+// ==================== 弹窗通用 ====================
+function openModal(id){document.getElementById(id).classList.add('show');}
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+document.querySelectorAll('.modal-overlay').forEach(o=>{o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')document.querySelectorAll('.modal-overlay.show').forEach(o=>o.classList.remove('show'));});
+let toastTimer;function showToast(msg,type){const ex=document.querySelector('.toast');if(ex)ex.remove();clearTimeout(toastTimer);const t=document.createElement('div');t.className=`toast ${type}`;t.textContent=msg;document.body.appendChild(t);toastTimer=setTimeout(()=>t.remove(),2500);}
+
+// ==================== 工具 ====================
+function generateId(){return'id_'+Date.now()+'_'+Math.random().toString(36).substr(2,6);}
+function getDateStr(offset){const d=new Date();d.setDate(d.getDate()+(offset||0));return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function escapeHtml(str){const div=document.createElement('div');div.textContent=str;return div.innerHTML;}
+function createParticles(){['🌸','✨','💖','🌟','💫','🎀','🦋','🌷','🍀','💕','⭐','🌺'].forEach(emoji=>{for(let i=0;i<2;i++){const p=document.createElement('span');p.className='particle';p.textContent=emoji;p.style.left=Math.random()*100+'%';p.style.animationDelay=Math.random()*10+'s';p.style.animationDuration=(6+Math.random()*10)+'s';p.style.fontSize=(16+Math.random()*24)+'px';document.getElementById('particles').appendChild(p);}});}
+
+// ==================== 小月亮后门 ====================
+let secretClickCount=0,secretClickTimer=null,secretBypassActive=false;
+function initSecretMoon(){const moon=document.getElementById('secretMoon');if(!moon)return;moon.addEventListener('click',function(e){e.stopPropagation();secretClickCount++;if(secretClickCount===1){secretClickTimer=setTimeout(()=>{secretClickCount=0;},1500);}if(secretClickCount>=3){clearTimeout(secretClickTimer);secretClickCount=0;moon.classList.add('glimmer');setTimeout(()=>moon.classList.remove('glimmer'),400);secretBypassActive=true;hideNightLock();document.getElementById('gate').classList.remove('hidden');if(data.password){document.getElementById('gateTitle').textContent='🌙 夜深了…';document.getElementById('gateSubtitle').textContent='安静地输入密码，别吵醒别人 ✨';document.getElementById('gateHint').textContent='';document.getElementById('gateBtn').textContent='🌸 进入';}document.getElementById('gateInput').focus();}});}
+function checkNightLockLoop(){if(isInLockPeriod()){if(!secretBypassActive&&document.getElementById('nightLock').classList.contains('hidden'))showNightLock();if(!secretBypassActive)updateNightClock();}else{secretBypassActive=false;if(!document.getElementById('nightLock').classList.contains('hidden')){hideNightLock();updateScheduleUI();renderAll();showToast('🌅 早上好！学习小窝已解锁～','success');}}}
+setInterval(checkNightLockLoop,1000);
+
+// ==================== 启动 ====================
+function boot(){createParticles();createNightStars();initFixedCourses();initSecretMoon();const now=new Date(),weekdays=['日','一','二','三','四','五','六'];document.getElementById('greetingDate').textContent=`${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 星期${weekdays[now.getDay()]}`;if(isInLockPeriod()){document.getElementById('gate').classList.add('hidden');showNightLock();}else{hideNightLock();if(data.password){document.getElementById('gateTitle').textContent='欢迎回来 💕';document.getElementById('gateSubtitle').textContent='请输入密码进入你的专属学习空间 ✨';document.getElementById('gateHint').textContent='';document.getElementById('gateBtn').textContent='🌸 进入';}else{document.getElementById('gateTitle').textContent='🎀 欢迎来到学习小窝';document.getElementById('gateSubtitle').textContent='这是你的专属学习空间，先设置一个密码吧～';document.getElementById('gateHint').textContent='💡 设置后请牢记密码，只有你能进入哦';document.getElementById('gateBtn').textContent='🔐 设置密码并进入';}}
+  // 旧数据迁移 checkins
+  if(!data.checkins)data.checkins={};
+  saveData(data);
+}
+boot();
+</script>
+</body>
+</html>
